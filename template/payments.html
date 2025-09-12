@@ -1,0 +1,586 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="static/assets/extensions/simple-datatables/style.css">
+
+
+
+        <div id="main">
+
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            <div class="page-heading">
+
+                <section class="section"> 
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text">To'lovlar</h3> 
+                            <div class="add-clients-btn d-flex justify-content-end" style="margin-top: -45px;" onclick="putCurrency()">
+                                <a href="#" class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#border-less">To'lov qilish +</a>
+                            </div> 
+                            
+                        </div>
+                        <div class="card-body">
+                            <form method="get" class="filter-section d-flex justify-content-start mb-3">
+                                <input type="date" class="form-control me-3" name="start-date" placeholder="Boshlanish sanasi" value="{{ start_date }}">
+                                <input type="date" class="form-control me-3" name="end-date" placeholder="Tugash sanasi" value="{{ end_date }}">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-funnel"></i>
+                                </button>
+                            </form>
+                            <table class="table table-striped  mt-2" id="table1">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th></th>
+                                        <th>Sana</th>
+                                        <th>Mijoz</th>
+                                        <th>To'langan summa</th>
+                                        <th>Valyuta</th>
+                                        <th>Valyuta kursi</th>
+                                        <th>Konteyner raqami</th>
+                                        <th>Izoh</th>
+                                        <th></th>
+                                        <th></th>
+                                      
+                                    </tr>
+                                </thead>
+                                    <tbody>
+                                        {% for payment in payments %}
+                                        <tr id="tr_payment-{{ payment.id }}">
+                                            <td>{{forloop.counter}}</td>
+                                            
+                                            {% if payment.type_select == 1 %}
+                                                <td class="text-success">Pul berdi</td>
+                                                {% else %}
+                                                <td class="text-danger">Pul oldi</td>
+                                            {% endif %}
+                                                
+                                            <td>{{payment.created_at|date:'d/m/Y H:i'}}</td>
+                                            <td id="td_customer_name-{{ payment.id }}" data-id="{{ payment.client_account.client_info.id }}">{{ payment.client_account.client_info.name }}</td>
+                                            <td id="td_payment_amount-{{ payment.id }}">{{ payment.payment_amount }}</td>
+                                            <td id="td_payment_currency-{{ payment.id }}" data-id="{{ payment.currency }}">{% if payment.currency == 1 %}${% else %}so'm{% endif %}</td>
+                                            <td id="td_exchange_rate-{{ payment.id }}">{{ payment.sale_exchange_rate }}</td>
+                                            <td id="td_container_payment-{{ payment.id }}" data-id="{{ payment.client_account.container_client.id }}">{{ payment.client_account.container_client.name }}</td>
+                                            <td id="td_comment-{{ payment.id }}">{{ payment.comment|default:'-' }}</td>
+                                            <td><i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                                data-bs-target="#default" onclick="editPayment('{{ payment.id }}')"></i>
+                                            </td>
+                                            <td class="text-center"><i class="bi bi-trash-fill text-danger fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                                data-bs-target="#danger" onclick="paymnetDelete('{{ payment.id }}')"></i>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    
+                                        
+                                        
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+
+
+    <!-- modals -->
+
+
+<div class="modal fade text-left" id="danger" tabindex="-1" role="dialog"
+    aria-labelledby="myModalLabel120" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+        role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title white" id="myModalLabel120"></h5>
+                <button type="button" class="close" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 class="modal-title text-center" id="myModalLabel120">Ushbu to'lovni o'chirishni xoxlaysizmi ?</h5>
+                <p class="text text-center">Ushbu amal bajarilganda ma'lumotlar o'chiriladi !</p>
+                <div class="btns d-flex justify-content-center m-4">
+
+                    <button type="button" class="btn btn-light-secondary  m-3"
+                        data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Yo'q</span>
+                    </button>
+                    <button type="button" class="btn btn-danger ms-1 m-3 delete-pay"
+                        data-bs-dismiss="modal" id="putPaymentId">
+                        <i class="bx bx-check d-block d-sm-none" ></i>
+                        <span class="d-none d-sm-block">Ha</span>
+                    </button>
+                </div>
+            </div>
+         
+        </div>
+    </div>
+</div>
+
+<script>
+    function paymnetDelete(pay_id){
+        $('#putPaymentId').attr('data-id', pay_id)
+    }
+
+    $('.delete-pay').click(function(){
+        let id = $(this).data('id')
+        $.ajax({
+            url: '/delete-payment/' + id,
+            method: 'get',
+            success: function(res){
+                location.reload()
+            }
+        })
+    })
+</script>
+
+    <div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+    role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">To'lov qo'shish</h5>
+                <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm"  method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input class="form-check-input" type="radio" name="type_select" value="1" id="give_money" checked>
+                        <label for="give_money" class="text-success mr-3">Pul berdi</label> 
+                        <input class="form-check-input" type="radio" name="type_select" value="2" id="take_money">
+                        <label for="take_money" class="text-danger">Pul oldi</label>
+                        <hr>
+                        <p class="debt_info text-start text-warning" style="display:none;">
+                            Qarz: 1000$ | 130000000 so'm
+                        </p>
+                        <label for="">Mijoz</label>
+                        <select id="client_select" class="searchable" required name="client">
+                            <option value="0" selected>Mijozni tanlang</option>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <p class="client_error_msg text-start text-danger" style="display: none;">
+                            Mijozlardan birini tanlang !
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Konteyner (majburiy emas)</label>
+                        <select id="containerselect" class="searchable-2"  name="container">
+                            <option value="0" selected>Tanlanmagan</option>
+                            {% for container in containers %}
+                                <option value="{{ container.id }}" data-client-id="{{ client.client_info.id }}">
+                                    {{ container.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <p class="container_error_msg text-start text-danger" style="display: none;">
+                            Konteynerlardan birini tanlang !
+                        </p>
+                        
+                    </div>
+                    <div class="form-group">
+                        <label for="">Valyuta</label>
+                        <select class="form-select w-45" id="currencySelect" required name="currency_type">
+                            <option value="0" selected>Valyutani turi</option>
+                            <option value="1">Dollar ( $ )</option>
+                            <option value="2">So'm</option>
+                        </select>
+                        <p class="currency_error_msg text-start text-danger mt-1" style="display: none;">
+                            Valyutalardan birini tanlang !
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label for="exchangeRateInput" class="m-1">Valyuta kursi</label>
+                        <input type="number" step="any" class="form-control" id="exchangeRateInput" placeholder="$" required name="exchange_rate">
+                        <p class="exchange_rate_error_msg text-start text-danger mt-1" style="display: none;">
+                            Valyuta kursini kiriting !
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentSumInput" class="m-1">Summa</label>
+                        <input type="number" step="any" class="form-control" id="paymentSumInput" placeholder="summa" required name="payment_sum">
+                        <p class="summa_error_msg text-start text-danger mt-1" style="display: none;">
+                            Summani kiriting !
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment" class="m-1">Izoh (majburiy emas)</label>
+                        <textarea name="comment" id="comment" class=" form-control"></textarea>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                    <i class="bx bx-x d-block d-sm-none"></i>
+                    <span class="d-none d-sm-block">Orqaga</span>
+                </button>
+                <button type="submit" class="btn btn-primary ms-1" id="paymentBtn">
+                    Tasdiqlash
+                </button>
+            </div>
+                </form>
+        </div>
+    </div>
+</div>
+
+    <!-- endmodals -->         
+
+
+<div class="modal fade text-left" id="default" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">To'lov ma'lumotlarini tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editPaymentForm" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="payment_id" name="payment_id">
+               
+                <div class="form-group">
+                    <select class="form-select w-45" id="modal_currencySelect" required name="currency_type">
+                        <option value="0" >Valyutani turi</option>
+                        <option value="1">Dollar  ( $ )</option>
+                        <option value="2">So'm</option>
+                    </select>
+                    <p class="modal_currency_error_msg text-start text-danger mt-1" style="display: none;">
+                        Valyutalardan birini tanlang !
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="exchangeRateInput" class="m-1">Valyuta kursi</label>
+                    <input type="number" step="any" class="form-control" id="modal_exchangeRateInput" placeholder="$" required name="exchange_rate">
+                    <p class="modal_exchange_rate_error_msg text-start text-danger mt-1" style="display: none;">
+                        Valyuta kursini kiriting !
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="paymentSumInput" class="m-1">Summa</label>
+                    <input type="number" step="any" class="form-control" id="modal_paymentSumInput" placeholder="summa" required name="payment_sum">
+                    <p class="modal_summa_error_msg text-start text-danger mt-1" style="display: none;">
+                        Summani kiriting !
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="comment" class="m-1">Izoh (majburiy emas)</label>
+                    <textarea name="comment" id="modal_comment" class="form-control"></textarea>
+                </div>
+            </form>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn" data-bs-dismiss="modal">
+                <i class="bx bx-x d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Orqaga</span>
+            </button>
+            <button type="submit" class="btn btn-primary ms-1"  id="updateProductBtn">
+                <i class="bx bx-check d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Saqlash</span>
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+
+
+    <script>
+        let $select_ = $('.searchable').selectize()
+        let $select2_ = $('.searchable-2').selectize()
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        function putCurrency(){
+    
+            let course = localStorage.getItem("course");
+
+            $('#exchangeRateInput').val(course)
+        }
+        
+
+        $(document).ready(function() {
+            // Handle form submission with AJAX
+            $('#paymentBtn').click(function(event) {
+
+                let currencySelect = $('#currencySelect');
+                let containerselect = $('#containerselect');
+                let client_select = $('#client_select');
+
+          
+
+                let valid = true;
+               
+                if (client_select.val() === "0") {
+                    valid = false;
+                    $('.client_error_msg').show()
+                  
+                }else{
+                    valid = true
+                    $('.client_error_msg').hide()
+                }
+                // if (containerselect.val() === "0") {
+                //     valid = false;
+                //     $('.container_error_msg').show()
+                  
+                // }else{
+                //     valid = true
+                //     $('.container_error_msg').hide()
+                // }
+
+                if (currencySelect.val() === "0") {
+                    valid = false;
+                    $('.currency_error_msg').show()
+                  
+                }else{
+                    valid = true
+                    $('.currency_error_msg').hide()
+                }
+
+                if ($('#paymentSumInput').val().trim() === '') {
+                    valid = false;
+                    $('.summa_error_msg').show()
+                }else{
+                    $('.summa_error_msg').hide()
+                }
+
+                if ($('#exchangeRateInput').val().trim() === '') {
+                    valid = false;
+                    $('.exchange_rate_error_msg').show()
+                }else{
+                    $('.exchange_rate_error_msg').hide()
+                }
+
+                
+                
+                
+                if (valid) {
+                    event.preventDefault();
+                    
+                    formData = $('#paymentForm').serialize()
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "main:create-payment" %}',
+                        data: formData,
+                        success: function(response) {
+                            location.reload()
+
+                            messageToast(response.status, response.message)
+
+                        },
+                        error: function(error) {
+                            alert('Error submitting data');
+                            messageToast(status, error)
+
+                            // Handle error response
+                        }
+                    });
+
+
+                }
+                
+            })
+
+
+        });
+
+        function editPayment(paymentId) {
+            // Retrieve data from table row
+            let customerName = $(`#td_customer_name-${paymentId}`).text();
+            let customerId = $(`#td_customer_name-${paymentId}`).data('id');
+            let paymentAmount = $(`#td_payment_amount-${paymentId}`).text();
+            let paymentCurrency = $(`#td_payment_currency-${paymentId}`).data('id');
+            let exchangeRate = $(`#td_exchange_rate-${paymentId}`).text();
+            let containerPaymentId = $(`#td_container_payment-${paymentId}`).data('id');
+            let comment = $(`#td_comment-${paymentId}`).text();
+    
+
+            $('#payment_id').val(paymentId);
+            
+    
+            $('#modal_currencySelect').val(paymentCurrency).change().attr('selected', true);
+
+            console.log(paymentCurrency)
+    
+            $('#modal_exchangeRateInput').val(exchangeRate);
+            $('#modal_paymentSumInput').val(paymentAmount);
+            $('#modal_comment').val(comment);
+    
+            // Open modal
+            $('#default').modal('show');
+        }
+    
+        $('#default').on('hidden.bs.modal', function() {
+            $('#paymentForm')[0].reset();
+            $('#modal_currencySelect')[0].selectize.clear();
+        });
+
+        $(document).ready(function() {
+            // Handle form submission with AJAX
+            $('#updateProductBtn').click(function(event) {
+                
+                formData = $('#editPaymentForm').serialize()
+
+                if ($('#modal_currencySelect').val() === "0") {
+                    valid = false;
+                    $('.modal_currency_error_msg').show()
+                  
+                }else{
+                    valid = true
+                    $('.modal_currency_error_msg').hide()
+                }
+
+                if ($('#modal_paymentSumInput').val().trim() === '') {
+                    valid = false;
+                    $('.modal_summa_error_msg').show()
+                }else{
+                    $('.modal_summa_error_msg').hide()
+                }
+
+                if ($('#modal_exchangeRateInput').val().trim() === '') {
+                    valid = false;
+                    $('.modal_exchange_rate_error_msg').show()
+                }else{
+                    $('.modal_exchange_rate_error_msg').hide()
+                }
+
+                if (valid) {
+
+      
+                $.ajax({
+                    url: '{% url "main:edit-payment" %}',  // Replace with your actual URL
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+
+
+                        messageToast(response.status, response.message)
+                        window.location.reload();
+                    },
+                    error: function(error) {
+                        // Handle error
+                        console.log('Error:', error);
+                        messageToast(status, error)
+                        
+                    }
+                });
+            }
+
+            })
+        })
+        //onchange
+
+        $(document).ready(function() {
+            // Initialize Selectize
+            $('#client_select').selectize();
+            $('#containerselect').selectize();
+        
+            function sendAjaxRequest(clientId, containerId) {
+                $.ajax({
+                    url: '{% url "main:get-client-debt" %}',  // Replace with your actual URL
+                    type: 'POST',
+                    data: {
+                        client_id: clientId,
+                        container_id: containerId,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        $('.debt_info').show()
+                        $('.debt_info').html(`
+                        Qarz: ${response.data.debt_usd} $ | ${response.data.debt_uzs} so'm
+                        `)
+                    
+                        console.log('Success:', response);
+                    },
+                    error: function(error) {
+                        // Handle error
+                        console.log('Error:', error);
+                    }
+                });
+            }
+        
+            function checkAndSendAjax() {
+                let clientSelect = $('#client_select')[0].selectize;
+                let containerSelect = $('#containerselect')[0].selectize;
+        
+                let clientId = clientSelect.getValue();
+                let containerId = containerSelect.getValue();
+        
+                if (clientId !== '0') {
+                    sendAjaxRequest(clientId, containerId);
+                }else{
+                    $('.debt_info').hide()
+
+                }
+            }
+        
+            $('#client_select').change(function() {
+                checkAndSendAjax();
+            });
+        
+            $('#containerselect').change(function() {
+                checkAndSendAjax();
+            });
+        });
+        
+
+        
+    </script>
+ <script>
+    $(document).ready(function() {
+        // Mijoz tanlanganda konteynerlarni ko'rsatish
+        $('#client_select').change(function() {
+            var clientId = $(this).val();
+            
+            // Barcha konteynerlarni yashirish
+            $('#containerselect option').each(function() {
+                if ($(this).attr('value') != '0') {
+                    $(this).hide();
+                }
+            });
+
+            // Tanlangan mijozga tegishli konteynerlarni ko'rsatish
+            $('#containerselect option').each(function() {
+                if ($(this).data('client-id') == clientId) {
+                    $(this).show();
+                }
+            });
+        });
+    });
+</script>
+
+<script src="static/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
+<script src="static/assets/static/js/pages/simple-datatables.js"></script>
+
+
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+    <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            
+<!-- <div class="page-heading">
+    <h3>Profile Statistics</h3>
+</div>  -->
+
+<div class="form-group text-center" >
+    <input type="text" placeholder="Qidiruv..." class="form-control w-50 mx-auto m-2" id="searchContainerInput" style="border-radius: 26px;">
+</div>
+
+<div class="page-content"> 
+    <section class="row " id="containers_list" >
+
+        {% if containers.count > 0 %}
+
+        {% for container in containers %}
+        
+        <div class="col-md-4 mt-2">
+            <a href="{% url 'main:archive-product-detail' container.id %}">
+            <div class="card" >
+                <div class="card-content" style="
+                background-image: url(static/assets/static/images/extra-images/archive-container-bg.jpg); 
+                height:200px; 
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;" >
+                    
+                    <div class="col-md-8 col-lg-12 col-xl-12 p-4 ">
+                        <h4 class="text-dark font-bold">{{ container.name }}</h4>
+                        <h6 class="text-dark font-semibold float-right" >{{ container.come_date|date:"d/m/Y" }}</h6>
+                        
+                    </div>
+                </div>
+                
+            </div>
+        </a>
+        </div>  
+
+        {% endfor %}
+
+        {% else %}
+        <div class="col-md-12">
+            <h5 class="text-center mt-5">Konteynerlar mavjud emas !</h5>
+        </div>
+        {% endif %}
+        
+       
+          
+
+
+            
+
+    </section>
+</div>
+
+
+
+<script>
+    
+
+    $('#searchContainerInput').on('keyup', function(e){
+        e.preventDefault();
+        let value = $(this).val()
+
+        $.ajax({
+            url:"{% url 'main:search-container' %}",
+            method:"GET",
+            data:{'value':value,"archive":true},
+            dataType:'json',
+            success:function(response){
+           
+                AddData(response.data)
+
+            },
+            error:function(error){
+                console.log(error)
+            }
+        });
+
+    });
+
+    let container_list = $('#containers_list')
+
+    function AddData(containers){
+
+        container_list.html('')
+        
+        if(containers.length > 0){
+            containers.forEach(c => {
+                let new_list =  ` <div class="col-md-4 mt-2">
+                <a href="/'main:archive-product-detail/${ c.container_id }'>
+
+                    <div class="card" >
+                        <div class="card-content" style="
+                        background-image: url(static/assets/static/images/extra-images/archive-container-bg.jpg); 
+                        height:200px; 
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        background-size: cover;" >
+                            <!-- <img class="img-fluid" src="../static/assets/static/images/extra-images/archive-container-bg.jpg" alt="Card image cap"> -->
+                            <div class="col-md-8 col-lg-12 col-xl-12 p-4">
+                                <h4 class="text-dark font-bold">${c.container_name}</h4>
+                                <h6 class="text-dark font-semibold float-right" >${c.container_come_date}</h6>
+                                
+                            </div>
+                        </div>
+                        
+                       
+                    </div>
+                </a>
+                </div>  `
+                container_list.append(new_list)
+
+            })
+        }else{
+            containers.forEach(c => {
+                let new_list =  ` <div class="col-md-4 mt-2">
+
+                <a href="/archive-product-detail/${ c.container_id }'>
+
+                    <div class="card" >
+                        <div class="card-content" style="
+                        background-image: url(static/assets/static/images/extra-images/archive-container-bg.jpg); 
+                        height:200px; 
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        background-size: cover;" >
+                            <!-- <img class="img-fluid" src="../static/assets/static/images/extra-images/archive-container-bg.jpg" alt="Card image cap"> -->
+                            <div class="col-md-8 col-lg-12 col-xl-12 p-4">
+                                <h4 class="text-dark font-bold">${c.container_name}</h4>
+                                <h6 class="text-dark font-semibold float-right" >${c.come_date}</h6>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                </a>
+                
+                </div>  `
+                container_list.append(new_list)
+
+            })
+        }
+
+       
+
+    }
+
+</script>
+    
+
+{% endblock content %}

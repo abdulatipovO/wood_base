@@ -1,0 +1,504 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+
+    <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            
+
+
+                             
+<div class="page-content"> 
+            <div class="row">
+                
+                <div class="col-12">
+                    <div class="card">
+                        
+                        <div class="card-header d-flex justify-content-between">
+                            <h5 class="card-title mt-3">Foydalanuvchilar</h5>
+                            <div class="add-container-btn d-flex justify-content-end" >
+                                <a href="#" class="btn btn-primary m-2"  data-bs-toggle="modal" data-bs-target="#border-less"><span class="me-3">Foydalanuvchi qo'shish</span><i class="bi bi-person-add fs-5"></i> </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="table-responsive ">
+                                <table class="table table-hover table-bordered mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Username</th>
+                                            <th>Ismi</th>
+                                            <th>Foydalanuvchi</th>
+                                            <th></th>
+                                          
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in users %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td class="text-bold-500" id="username-{{ user.id }}">{{ user.username }}</td>
+                                            <td class="text-bold-500" id="first_name-{{ user.id }}">{{ user.first_name }}</td>
+
+                                            {% if user.is_staff %} 
+                                             
+                                            <td id="user_type-{{ user.id }}" data-info="1">admin</td>
+                                            
+                                            {% else %} 
+                                                <td id="user_type-{{ user.id }}" data-info="2">kuzatuvchi</td>
+                                            {% endif %}
+
+                                            <td class="text-center">
+                                                <i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#default"  onclick="getValue('{{ user.id }}')"></i>
+                                                <i class="bi bi-trash-fill text-danger fs-5 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#danger" onclick="deleteUser('{{  user.id }}')"></i>
+                                            </td>
+                                           
+                                        </tr>
+                                       {% endfor %}
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+
+
+<div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+            role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Foydalanuvchi qo'shish</h5>
+                        <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                            aria-label="Close">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                       <form action="#" method="post" id="createUserForm">
+                        {% csrf_token %}
+
+                            <div class="form-group">
+                                <input type="text" class="form-control m-2" id="username" placeholder="Username" name="username" required>
+                            </div>
+                            <p class="username_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                                Username kiriting !
+                            </p>
+                            <div class="form-group">
+                                <input type="text" class="form-control m-2" id="first_name" placeholder="Ism" name="first_name" required>
+                            </div>
+                            <p class="first_name_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                                Ism kiriting !
+                            </p>
+                            <div class="form-group">
+                                <select class="choices form-select m-2" name="user_type" id="user_type" required >
+                                    <option value="0">Foydalanuvchi turini tanlang</option>
+                                    <option value="1">admin</option>
+                                    <option value="2">kuzatuvchi</option>
+                                </select>
+                            </div>
+                            <p class="user_type_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                                Foydalanuvchi turini tanlang !
+                            </p>
+                            <div class="form-group">
+                                <input type="password" name="password" id="password1" class="form-control m-2" placeholder="Parol kiriting" value="" required>
+                            </div>
+                            <p class="password1_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                                Parol kiritilishi shart !
+                            </p>
+                            <p class="check_password1_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                                Parollarbir biriga mos kelmadi !
+                            </p> 
+                            <div class="form-group">
+                                <input type="password" name="confirm_password" id="password2" class="form-control m-2" placeholder="Parolni takror kiriting" value="" required>
+                            </div>
+                            <p class="password2_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                                Parol kiritilishi shart !
+                            </p>
+                            <p class="check_password2_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                                Parollarbir biriga mos kelmadi !
+                            </p>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                                    <i class="bx bx-x d-block d-sm-none"></i>
+                                    <span class="d-none d-sm-block">Orqaga</span>
+                                </button>
+                                <button type="button" class="btn btn-primary ms-1" id="create_user_btn">
+                                Saqlash
+                                </button>
+                            </div>
+                       </form>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+
+<!-- 2 modal -->
+
+
+<div class="modal fade text-left" id="default" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">Foydalanuvchi ma'lumotlarini tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="#" method="post" id="editUserForm">
+                {% csrf_token %}
+
+                    <div class="form-group">
+                        <input type="text" class="form-control m-2" id="edit_username" placeholder="Username" name="username" required>
+                        <input type="number" step="any" class="form-control m-2" id="edit_user_id"  name="edit_user_id" style="display: none;">
+                    </div>
+                    <p class="edit_username_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                        Username kiriting !
+                    </p>
+                    <div class="form-group">
+                        <input type="text" class="form-control m-2" id="edit_first_name" placeholder="Ism" name="first_name" required>
+                    </div>
+                    <p class="edit_first_name_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                        Ism kiriting !
+                    </p>
+                    <div class="form-group">
+                        <select class="choices form-select m-2" name="user_type" id="edit_user_type" required >
+                            <option value="0">Foydalanuvchi turini tanlang</option>
+                            <option value="1">admin</option>
+                            <option value="2">kuzatuvchi</option>
+                        </select>
+                    </div>
+                    <p class="edit_user_type_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                        Foydalanuvchi turini tanlang !
+                    </p>
+                    <div class="form-group">
+                        <input type="password" name="password" id="edit_password1" class="form-control m-2" placeholder="Parol kiriting" value="" required>
+                    </div>
+                    <p class="edit_password1_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                        Parol kiritilishi shart !
+                    </p>
+                    <p class="edit_check_password1_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                        Parollarbir biriga mos kelmadi !
+                    </p> 
+                    <div class="form-group">
+                        <input type="password" name="confirm_password" id="edit_password2" class="form-control m-2" placeholder="Parolni takror kiriting" value="" required>
+                    </div>
+                    <p class="edit_password2_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                        Parol kiritilishi shart !
+                    </p>
+                    <p class="edit_check_password2_error_msg  m-2 text-start text-danger mt-1" style="display: none;">
+                        Parollar bir biriga mos kelmadi !
+                    </p>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                            <i class="bx bx-x d-block d-sm-none"></i>
+                            <span class="d-none d-sm-block">Orqaga</span>
+                        </button>
+                        <button type="button" class="btn btn-primary ms-1" id="edit_user_btn">
+                        Saqlash
+                        </button>
+                    </div>
+               </form>
+        </div>
+        
+    </div>
+</div>
+</div>
+
+
+<!-- 2 modal -->
+
+{% comment %}
+<script>
+
+    $(document).ready(function() {
+
+        $('#create_user_btn').click(function(event) {
+
+            let valid = 0
+
+            if ($('#username').val().trim() === "") {
+                valid = false;
+                $('.username_error_msg').show()
+              
+            }else{
+                valid = true
+                $('.username_error_msg').hide()
+            }
+            if ($('#first_name').val().trim() === "") {
+                valid = false;
+                $('.first_name_error_msg').show()
+            }else{
+                valid = true
+                $('.first_name_error_msg').hide()
+            }
+            if ($('#password1').val().trim() === "") {
+                valid = false;
+                $('.password1_error_msg').show()
+            }else{
+                valid = true
+                $('.password1_error_msg').hide()
+            }
+            if ($('#password2').val().trim() === "") {
+                valid = false;
+                $('.password2_error_msg').show()
+            }else{
+                valid = true
+                $('.password2_error_msg').hide()
+            }
+            if ($('#user_type').val().trim() === "0") {
+                valid = false;
+                $('.user_type_error_msg').show()
+              
+            }else{
+                valid = true
+                $('.user_type_error_msg').hide()
+            }
+            if($('#password1').val() !== $('#password2').val() ){
+                valid = false
+                $('.check_password1_error_msg').show()
+                $('.check_password2_error_msg').show()
+
+            }else{
+                valid = true
+                $('.check_password1_error_msg').hide()
+                $('.check_password2_error_msg').hide()
+            }
+
+            if(valid === true){
+                console.log('go ajax')
+
+                event.preventDefault()
+                
+                formData = $('#createUserForm').serialize()
+
+                $.ajax({
+                    url: '{% url "main:create-user" %}',  // Replace with your actual URL
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        messageToast(response.status, response.message)
+                        location.reload()
+
+                    },
+                    error: function(error) {
+                        // Handle error
+                        console.log('Error:', error);
+                        messageToast(status, error)
+                        
+                    }
+                });
+
+            }else{
+                
+                return false
+
+
+            }
+
+        })
+
+
+
+    })
+
+
+    //edit
+
+    function getValue(id){
+        let username = $(`#username-${id}`).text()
+        let first_name = $(`#first_name-${id}`).text()
+        let user_type = $(`#user_type-${id}`).attr('data-info')
+        let edit_user_id = $(`#edit_user_id`).val(id)
+
+        console.log(user_type)
+
+        $('#edit_username').val(username)
+        $('#edit_first_name').val(first_name)
+        $('#edit_user_type').val(user_type).trigger('change');
+
+    }
+
+    
+    $(document).ready(function() {
+
+        $('#edit_user_btn').click(function(event) {
+            event.preventDefault()
+
+            let valid = true
+
+            if ($('#edit_username').val().trim() === ""){
+                valid = false;
+                $('.edit_username_error_msg').show()
+            }else{
+                valid = true
+                $('.edit_username_error_msg').hide()
+            }
+            if ($('#edit_first_name').val().trim() === ""){
+                valid = false;
+                $('.edit_first_name_error_msg').show()
+            }else{
+                valid = true
+                $('.edit_first_name_error_msg').hide()
+            }
+            if ($('#edit_password1').val().trim() === ""){
+                valid = false;
+                $('.edit_password1_error_msg').show()
+            }else{
+                valid = true
+                $('.password1_error_msg').hide()
+            }
+            if ($('#edit_password2').val().trim() === ""){
+                valid = false;
+                $('.edit_password2_error_msg').show()
+            }else{
+                valid = true
+                $('.edit_password2_error_msg').hide()
+            }
+            if ($('#edit_user_type').val().trim() === "0"){
+                valid = false;
+                $('.edit_user_type_error_msg').show()
+              
+            }else{
+                valid = true
+                $('.edit_user_type_error_msg').hide()
+            }
+            
+            if($('#edit_password1').val().trim() === $('#edit_password2').val().trim() ){
+                valid = true
+                $('.edit_check_password1_error_msg').hide()
+                $('.edit_check_password2_error_msg').hide()
+
+            }else{
+                valid = false
+                $('.edit_check_password1_error_msg').show()
+                $('.edit_check_password2_error_msg').show()
+
+            }
+
+            if(valid === true){
+                console.log('go ajax')
+
+                
+                formData = $('#editUserForm').serialize()
+
+                $.ajax({
+                    url: '{% url "main:edit-user" %}',  // Replace with your actual URL
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        //location.reload()
+
+                    },
+                    error: function(error) {
+                        // Handle error
+                        console.log('Error:', error);
+                        
+                    }
+                });
+
+            }else{
+                
+                
+                return false
+
+
+            }
+
+        })
+
+    })
+            
+            
+
+
+</script>
+
+{% endcomment %}
+
+
+
+<script>
+    // Add User
+    $('#create_user_btn').on('click', function() {
+        let formData = $('#createUserForm').serialize();
+
+        $.ajax({
+            url: '/add-user/',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
+    });
+
+    // Edit User
+    function getValue(user_id) {
+        let username = $('#username-' + user_id).text().trim();
+        let first_name = $('#first_name-' + user_id).text().trim();
+        let user_type = $('#user_type-' + user_id).data('info');
+
+        $('#edit_user_id').val(user_id);
+        $('#edit_username').val(username);
+        $('#edit_first_name').val(first_name);
+        $('#edit_user_type').val(user_type);
+    }
+
+    $('#edit_user_btn').on('click', function() {
+        let user_id = $('#edit_user_id').val();
+        let formData = $('#editUserForm').serialize();
+
+        $.ajax({
+            url: `/edit-user/${user_id}/`,
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            }
+        });
+    });
+
+    // Delete User
+    function deleteUser(user_id) {
+        if (confirm("Ushbu foydalanuvchini o'chirmoqchimisiz ")) {
+            $.ajax({
+                url: `/delete-user/${user_id}/`,
+                type: 'POST',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            });
+        }
+    }
+</script>
+
+
+{% endblock content %}

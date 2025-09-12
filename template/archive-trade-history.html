@@ -1,0 +1,446 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+<div id="main">
+    <header class="mb-3">
+        <a href="#" class="burger-btn d-block d-xl-none">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+
+<div class="page-heading">
+    <section class="section">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h3 class="text m-1 " id="container_name">Konteyner raqami: {{ container.name }}   
+                    
+                    <i class="bi bi-trash-fill text-danger fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#dangerContainer"></i>
+                </h3> 
+             
+             
+
+                
+                <div class="card-text d-block flex-wrap ">
+                    <h6 class="text text-bold m-1" >Kelgan sanasi:  <span class="text m-1 " id="container_come_date"> {{ container.come_date|date:"d/m/Y" }}</></h6>
+                    <h6 class="text text-bold m-1" >Tugatilgan sanasi: <span class="text m-1 " id="container_come_date"> {{ container.end_date|date:"d/m/Y" }}</></h6> 
+                </div>
+                
+            </div>
+            <div class="card-body row">
+
+                <div class="col-md-6">
+
+                
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Umumiy harajatlar: </h6> <h6 class="text m-1">{{ general_expenses|floatformat:2}} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Mahsulotlarni summasi: </h6> <h6 class="text m-1">{{ all_product_sum|floatformat:2}} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Chiqimlar summasi: </h6> <h6 class="text m-1">{{ all_expense_sum|floatformat:2}} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Umumiy savdo: </h6> <h6 class="text m-1"> {{ total_sales_revenue_usd|floatformat:2 }} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Tushgan summa: </h6> <h6 class="text m-1"> {{ container_paid_amount|floatformat:2 }} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Foyda: </h6> <h6 class="text m-1">{{ profit|floatformat:2 }} $</h6>
+                    </div> 
+                   
+                </div>
+            <div class="col-md-6">
+                
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Kelgan mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_come_cube|floatformat:4}} (kuba )</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Sotilgan mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_sold_out|floatformat:4}} (kuba )</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Qoldiq mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_rest_cube|floatformat:4}} (kuba )</h6>
+                </div>
+                <span class="badge bg-primary m-1 " style="cursor: pointer;" data-bs-toggle="modal"
+                data-bs-target="#backToMain">Asosiy konteynerlarga qo'shish <i class="bi bi-arrow-bar-up fw-bold mx-1"></i></span>
+            </div>
+
+               
+            </div>
+         </div>  
+
+
+    </section>
+
+
+    <div class="card-content">
+        <div class="card-body">
+            
+            <div class="list-group list-group-horizontal-sm mb-1 text-center" >
+
+
+                {% if request.path|slice:":32"  == "/archive-product-history-detail/" %}
+
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:archive-product-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-expense-container-detail' container.id %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-trade-history-detail' container.id %}" role="tab">Sotuv tarixi</a>
+
+
+                {% elif  request.path|slice:":32" == '/archive-expense-history-detail/' %}
+
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-product-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:archive-expense-container-detail' container.id %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-trade-history-detail' container.id %}" role="tab">Sotuv tarixi</a>
+
+                {% elif  request.path|slice:":30" == '/archive-trade-history-detail/' %}
+               
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-product-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-expense-container-detail' container.id %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:archive-trade-history-detail' container.id %}" role="tab">Sotuv tarixi</a>
+                {% else %}
+                {% endif %}
+
+            </div>
+
+
+
+
+        <section class="section mt-3">
+
+
+            
+
+
+            <div class="card">
+                         
+                <form action="#">
+                <div class="row d-flex justify-content-space-evenly p-4">
+
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="start_date" name="start_date">
+                        <input type="number" step="any" class="form-control" id="container_id" name="container_id" value="{{ container.id }}" style="display: none;">
+                    </div>
+                    <div class="col-md-1">
+                        <h6 class="mt-2">dan</h6>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control " id="end_date" name="end_date">
+                    </div>
+                    <div class="col-md-1">
+                        <h6 class="mt-2">gacha</h6>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-info  w-50 text-white" type="button" id="filterBtn">Filtrlash</button>
+                    </div>
+                    <div class="col-md-12 mt-3 ml-1">
+                        <h6 class="text-danger" id="error_date" style="display: none;">2 ta sana kiritishni unutmang !</h6>
+                        <h6 class="text-danger" id="error_date_greater" style="display: none;">Sana ma'lumotlari noto'g'ri kiritildi !</h6>
+                    </div>
+                    
+                </div>
+            </form>
+
+                <div class="row" id="table-inverse">
+                    <div class="col-md-12">
+                        <div class="card">
+                            
+                            <div class="card-content m-3">
+
+                                <div class="accordion accordion-flush" id="accordionFlushExample">
+
+                                    {% for order in orders %}
+
+                                    <div class="accordion-item mt-3 ">
+                                        <h2 class="accordion-header" id="flush-heading-{{ order.id }}">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-{{ order.id }}" aria-expanded="false" aria-controls="flush-collapse-{{ order.id }}" style="background-color: #F2F7FF; border-radius:5px;">
+                                                {{ order.created_at|date:'d/m/Y' }} | Jami: {{ order.total_summa|floatformat:2 }} {% if order.currency == 1 %} $ {% else %} so'm {% endif %} | {{ order.customer.name }} | Chegirma: {{ order.discount }}
+                                            </button>
+                                        </h2>
+                                        <div id="flush-collapse-{{ order.id }}" class="accordion-collapse collapse" aria-labelledby="flush-heading-{{ order.id }}" data-bs-parent="#accordionFlushExample">
+                                            <div class="accordion-body">
+                                                <div class="table-responsive">
+                                    
+                                  
+                                                    <table class="table table-bordered mb-0 " style="max-height: 40vh;">
+                    
+                    
+                                                        <thead>
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Nomi</th>
+                                                                <th>Soni</th>
+                                                                <th>Narxi</th>
+                                                                <th>Valyuta</th>
+                                                                <th>Jami</th>
+                                                                
+                                                     
+                                                            </tr>
+                                                      
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for item in order.items.all %}
+                                                            <tr>
+                                                                <td class="text-bold-500">{{ forloop.counter }}</td>
+                                                                <td>{{item.product_item.product_size }} | {{ item.product_item.product_size.product_size_title }}</td>
+                                                                <td id="td_item_qty-{{ item.id }}" class="text-bold-500">{{ item.amount_sold }}</td>
+                                                                <td  id="td_item_cost-{{ item.id }}"  class="text-bold-500">{{ item.product_cost }}</td>
+                                                                <td  id="td_item_cost-{{ item.id }}"  class="text-bold-500">{% if order.currency == 1 %} $ {% else %} so'm {% endif %}</td>
+                                                                <td class="text-bold-500">{{ item.total_price }}</td>
+                                                               
+                                                               
+                                                              
+                                                      
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {% endfor %}
+                                    
+
+                                    </div>
+                            
+                              
+                         
+              
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+    
+    
+            </div>
+
+
+
+                    </section> 
+            
+        </div>
+</div>
+
+<div class="modal fade text-left" id="dangerContainer" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel120" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    role="document">
+    <div class="modal-content">
+        <div class="modal-header bg-danger">
+            <h5 class="modal-title white" id="myModalLabel120"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-center" id="myModalLabel120">Ushbu konteynerni o'chirishni xoxlaysizmi ?</h5>
+            <p class="text-center">Ushbu konteyner o'chirilgan taqdirda unga bog'liq barcha ma'lumotlar o'chiriladi !</p>
+            <form action="{% url 'main:delete-container' %}" method="post" >{% csrf_token %}
+                <input type="number" step="any" style="display: none;" name="container_id" value="{{container.id }}">
+                <div class="btns d-flex justify-content-center m-4">
+
+                    <button type="button" class="btn btn-light-secondary  m-3"
+                        data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Yo'q</span>
+                    </button>
+                    <button type="submit" class="btn btn-danger ms-1 m-3">
+                        Ha
+                    </button>
+                </div>
+            </form>
+        </div>
+     
+    </div>
+</div>
+</div>
+
+
+<div class="modal fade text-left" id="backToMain" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel120" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    role="document">
+    <div class="modal-content">
+        <div class="modal-header ">
+            <h5 class="modal-title white" id="myModalLabel120"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-center" id="myModalLabel120">Ushbu konteynerni arxivdan chiqarmoqchimisiz ?</h5>
+            <p class="text-center">Arxivdan chiqarilgan barcha konteynerlar asosiy sahifaga qo'shiladi !</p>
+            <form action="{% url 'main:back-main-container' %}" method="post" >{% csrf_token %}
+                <input type="number" step="any" style="display: none;" name="container_id" value="{{container.id }}">
+                <div class="btns d-flex justify-content-center m-4">
+
+                    <button type="button" class="btn btn-light-secondary  m-3"
+                        data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block " >Yo'q</span>
+                    </button>
+                    <button type="submit" class="btn btn-primary text-white ms-1 m-3">
+                        Ha
+                    </button>
+                </div>
+            </form>
+        </div>
+     
+    </div>
+</div>
+</div>
+
+
+
+
+<script>
+
+
+$(document).ready(function() {
+
+    $('#filterBtn').click(function(event) {
+        let container_id = $('#container_id').val()
+        let startDate = $('#start_date').val()
+        let endDate = $('#end_date').val()
+
+        if (!endDate && !startDate){
+            $('#error_date').show()
+        }
+        if(new Date(startDate) > new Date(endDate) ){
+            $('#error_date_greater').show()
+        }
+        else{
+            $('#error_date_greater').hide()
+            $('#error_date').hide()
+
+            getData = {
+                startDate:startDate,
+                endDate:endDate,
+                container_id:container_id
+            }
+
+
+        $.ajax({
+            url: '{% url "main:filter-orders" %}',  
+            type: 'GET',
+            data: getData,
+            success: function(response) {
+
+
+                if (response.status === 200) {
+
+                    let orders = response.data;
+                    let ordersHtml = '';
+
+                    orders.forEach(order => {
+                        ordersHtml += `
+                        <div class="accordion-item mt-3">
+                            <h2 class="accordion-header" id="flush-heading-${order.id}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-${order.id}" aria-expanded="false" aria-controls="flush-collapse-${order.id}" style="background-color: #F2F7FF; border-radius:5px;">
+                                    ${order.created_at} |  Jami: ${order.total_summa} ${order.currency === 1 ? '$' : 'so\'m'} | ${order.customer_name} | Chegirma: ${ order.discount }
+                                </button>
+                            </h2>
+                            <div id="flush-collapse-${order.id}" class="accordion-collapse collapse" aria-labelledby="flush-heading-${order.id}" data-bs-parent="#accordionFlushExample">
+                                <div class="accordion-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered mb-0" style="max-height: 40vh;">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Nomi</th>
+                                                    <th>Soni</th>
+                                                    <th>Narxi</th>
+                                                    <th>Valyuta</th>
+                                                    <th>Jami</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>`;
+                        order.items.forEach((item, index) => {
+                            ordersHtml += `
+                            <tr>
+                                <td class="text-bold-500">${index + 1}</td>
+                                <td>${item.product_size}</td>
+                                <td id="td_item_qty-${item.id}" class="text-bold-500">${item.amount_sold}</td>
+                                <td id="td_item_cost-${item.id}" class="text-bold-500">${item.product_cost}</td>
+                                <td id="td_item_cost-${item.id}" class="text-bold-500">${order.currency === 1 ? '$' : 'so\'m'}</td>
+                                <td class="text-bold-500">${item.total_price}</td>
+                                <td class="text-bold-500 text-center">
+                                    <i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#default" onclick="editItem('${item.id}')"></i>
+                                </td>
+                                <td class="text-bold-500 text-center" style="width:5%;">
+                                    <span class="badge bg-secondary" type="button" data-bs-toggle="modal" data-bs-target="#inlineForm" onclick="returnItem('${item.id}')">Qaytarish</span>
+                                </td>
+                            </tr>`;
+                        });
+                        ordersHtml += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+
+                    $('#accordionFlushExample').html(ordersHtml);
+                } else {
+                    console.log('Error:', response.message);
+                }
+
+
+            },
+            error: function(xhr, status, error) {
+                console.log('Error updating data: ' + error);
+
+                messageToast(status, error)
+
+            }
+        });
+
+
+
+        }
+
+
+     })
+
+
+    $('#start_date').change(function(event) { 
+        let startDate = $(this).val()
+        let endDate = $('#end_date').val()
+
+        if (endDate && startDate){
+            $('#error_date').hide()
+        }else{
+            $('#error_date').show()
+        }       
+
+    })
+
+    $('#end_date').change(function(event) { 
+        let startDate = $('#start_date').val()
+        let endDate = $(this).val()
+
+        if (endDate && startDate){
+            $('#error_date').hide()
+        }else{
+            $('#error_date').show()
+        }      
+
+    })
+
+})
+
+
+</script>
+
+
+{% endblock content %}

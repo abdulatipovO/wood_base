@@ -1,0 +1,114 @@
+{% extends 'wrapper.html' %}
+{% load humanize %}
+{% block content %}
+
+
+<div id="main">
+    <header class="mb-3">
+        <a href="#" class="burger-btn d-block d-xl-none">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+
+    <div class="page-heading">
+        <h3>Statistika (Beta)</h3>
+    </div> 
+
+    <form class="row" method="get">
+        <div class="col-md-5">
+            <input type="date" class="form-control" name="start_date" value="{{start_date}}">
+            <label for="">..dan</label>
+        </div>
+        <div class="col-md-5">
+            <input type="date" class="form-control" name="end_date" value="{{end_date}}">
+            <label for="">..gacha</label>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary" type="submit">Filterlash</button>
+        </div>
+    </form>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Jami konteynerlar summasi (USD)
+                    </div>
+                    <div class="card-body">
+                        <h4>{{containers|intcomma}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Jami sotuv summasi (USD)
+                    </div>
+                    <div class="card-body">
+                        <h4>{{order_total_usd|intcomma}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Jami chiqimlar summasi (UZS)
+                    </div>
+                    <div class="card-body">
+                        <h4>{{expenses_uzs|intcomma}}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Jami chiqimlar summasi (USD)
+                    </div>
+                    <div class="card-body">
+                        <h4>{{expenses_usd|intcomma}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Jami to'lovlar summasi (UZS)
+                    </div>
+                    <div class="card-body">
+                        <h4>{{payment_uzs|intcomma}}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Jami to'lovlar summasi (USD)
+                    </div>
+                    <div class="card-body">
+                        <h4>{{payment_usd|intcomma}}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Foyda (USD)
+                    </div>
+                    <div class="card-body">
+                        <h4>{{success|intcomma}}</h4>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,321 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+<div id="main">
+    <header class="mb-3">
+        <a href="#" class="burger-btn d-block d-xl-none">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+
+<div class="page-heading">
+    <section class="section">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h3 class="text m-1 " id="container_name">Ta'minotchi: {{ supplier.name }}   
+                    
+                    <!-- <i class="bi bi-trash-fill text-danger fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#dangerContainer"></i> -->
+
+                </h3> 
+             
+                
+            </div>
+
+         
+         </div>  
+
+    </section>
+
+
+    <div class="card-content">
+
+        <div class="card-content">
+            <div class="card-body">
+                
+                <div class="list-group list-group-horizontal-sm mb-1 text-center" role="tablist">
+                    <a class="list-group-item list-group-item-action active" id="list-sunday-list" data-bs-toggle="list" href="#list-sunday" role="tab" aria-selected="true">Konteynerlar</a>
+                    <a class="list-group-item list-group-item-action" id="list-monday-list" data-bs-toggle="list" href="#list-monday" role="tab" aria-selected="false" tabindex="-1">To'lov tarixi</a>
+                </div>
+                <div class="tab-content text-justify">
+                    <div class="tab-pane fade active show pt-4" id="list-sunday" role="tabpanel" aria-labelledby="list-sunday-list">
+
+                        <div class="table-responsive card p-3">
+                
+            
+            
+                            <table class="table table-bordered mb-0 " style="max-height: 40vh;">
+
+
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Konteyner</th>
+                                        <th>Hajmi (kuba )</th>
+                                        <th>Hisob ( $ )</th>
+
+                             
+                                    </tr>
+                              
+                                </thead>
+                                <tbody>
+
+                                    {% for container in containers %}
+
+                                    <tr>
+                                        <td class="text-bold-500">{{ forloop.counter }}</td>
+                                        <td class="text-bold-500">{{ container.name }}</td>
+                                        <td class="text-bold-500">{{ container.total_cube|floatformat:4 }}</td>
+                                        <td class="text-bold-500">{{ container.difference_summa|floatformat:2   }}</td>
+                                        
+                              
+                                    </tr>
+
+                                    {% endfor %}
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    
+                    </div>
+
+                    
+                    <div class="tab-pane fade pt-4" id="list-monday" role="tabpanel" aria-labelledby="list-monday-list">
+
+                        <div class="table-responsive card p-3">
+                
+            
+            
+                            <table class="table table-bordered mb-0 " style="max-height: 40vh;">
+
+
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Konteyner</th>
+                                        <th>To'langan summa</th>
+                                        <th>Qolgan qarz ( $ )</th>
+                                        <th>To'langan sana</th>
+                                        <th></th>
+
+                             
+                                    </tr>
+                              
+                                </thead>
+                                <tbody>
+
+                                    {% for payment in supplier.payments_supplier.all %}
+
+                                    <tr id="payment-id-{{ payment.id }}">
+                                        <td class="text-bold-500">{{ forloop.counter }}</td>
+                                        <td class="text-bold-500">{{ payment.container_name.name }}</td>
+                                        <td class="text-bold-500" id="supplier_paid_summa-{{ payment.id }}">{{ payment.paid_summa|floatformat:2 }}</td>
+                                        <td class="text-bold-500">{{ payment.debt|floatformat:2   }}</td>
+                                        <td class="text-bold-500">{{ payment.created_at|date:"d/m/Y"   }}</td>
+                                        <td><i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                            data-bs-target="#default" onclick="editPayment('{{ payment.id }}')" ></i></td>
+
+                                        <td><i class="bi bi-trash-fill text-danger fs-5 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#danger"onclick="getPayment('{{ payment.id }}')"  ></i></td>
+                              
+                                    </tr>
+
+                                    {% endfor %}
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                            </div>
+
+                    </div>
+              
+                </div>
+            </div>
+        </div>
+
+
+
+        </div>
+    </div>
+
+
+
+</div> 
+
+</div>
+
+
+
+<div class="modal fade text-left" id="danger" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel120" aria-hidden="true">
+
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    role="document">
+    <div class="modal-content">
+        <div class="modal-header bg-danger">
+            <h5 class="modal-title white" id="myModalLabel120"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-center" id="myModalLabel120">Ushbu to'lov tarixini o'chirishni xoxlaysizmi ?</h5>
+            <form action="#" method="post" id="deleteForm">{% csrf_token %}
+                <input type="number" step="any" style="display: none;" id="putPaymentId" name="payment_id">
+            </form>
+            <div class="btns d-flex justify-content-center m-4">
+
+                <button type="button" class="btn btn-light-secondary  m-3"
+                    data-bs-dismiss="modal">
+                    <i class="bx bx-x d-block d-sm-none"></i>
+                    <span class="d-none d-sm-block">Yo'q</span>
+                </button>
+                <button type="button" class="btn btn-danger ms-1 m-3"
+                    data-bs-dismiss="modal" id="deleteConfirmPayment">
+                    <i class="bx bx-check d-block d-sm-none" ></i>
+                    <span class="d-none d-sm-block">Ha</span>
+                </button>
+            </div>
+        </div>
+     
+    </div>
+</div>
+</div>
+
+
+
+<div class="modal fade text-left" id="default" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">To'lov ma'lumotlarini tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editPaymentForm" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="editPaymentId" name="payment_id">
+               
+                
+                <div class="form-group">
+                    <label for="paymentSumInput" class="m-1">Summa</label>
+                    <input type="number" step="any" class="form-control" id="modal_paymentSumInput" placeholder="summa" required name="payment_sum">
+                    <p class="modal_summa_error_msg text-start text-danger mt-1" style="display: none;">
+                        Summani kiriting !
+                    </p>
+                </div>
+            </form>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn" data-bs-dismiss="modal">
+                <i class="bx bx-x d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Orqaga</span>
+            </button>
+            <button type="submit" class="btn btn-primary ms-1"  id="updateProductBtn">
+                <i class="bx bx-check d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Saqlash</span>
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+
+
+
+
+
+
+<script>
+    
+    function getPayment(payment_id){
+        $('#putPaymentId').val(payment_id)
+    }
+
+    function editPayment(payment_id){
+        let summa = $(`#supplier_paid_summa-${ payment_id }`).text()
+        $('#modal_paymentSumInput').val(summa)
+        $('#editPaymentId').val(payment_id)
+
+    }
+
+
+    $(document).ready(function() {
+        
+        $('#deleteConfirmPayment').click(function(event) {
+            
+            let deleteForm = $(`#deleteForm`).serialize()
+
+            $.ajax({
+                url: '{% url "main:delete-supplier-payment" %}',  
+                type: 'POST',
+                data: deleteForm,
+                success: function(response) {
+
+                    location.reload()
+
+                    messageToast(response.status, response.message)
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error)
+
+                }
+            });
+        })
+    })
+
+    $(document).ready(function() {
+        // Handle form submission with AJAX
+        $('#updateProductBtn').click(function(event) {
+            let valid = true
+            formData = $('#editPaymentForm').serialize()
+
+            if ($('#modal_paymentSumInput').val().trim() === '') {
+                valid = false;
+                $('.modal_summa_error_msg').show()
+            }else{
+                valid = true;
+
+                $('.modal_summa_error_msg').hide()
+            }
+
+
+            if (valid) {
+
+  
+            $.ajax({
+                url: '{% url "main:edit-supplier-payment" %}',  
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+
+                    location.reload()
+
+                    messageToast(response.status, response.message)
+
+                },
+                error: function(error) {
+                    // Handle error
+                    console.log('Error:', error);
+                    messageToast(status, error)
+                    
+                }
+            });
+        }
+
+        })
+    })
+
+
+</script>
+
+
+{% endblock content %}

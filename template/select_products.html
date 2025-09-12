@@ -1,0 +1,271 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+
+    <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            
+<!-- <div class="page-heading">
+    <h3>Profile Statistics</h3>
+</div>  -->
+
+<form class="form-group row" method="get">
+    <div class="col-4">
+        <input type="text" id="jsSearchInput" placeholder="Mahsulot yoki konteyner nomidan qidirish..." class="form-control col-md-5" style="border-radius: 26px;">
+    </div>
+    <div class="col-3">
+        <input type="date" name="start" class="form-control col-md-3" style="border-radius: 26px;" value="{{start_value}}">
+        <label for="">..dan</label>
+    </div>
+    <div class="col-3">
+        <input type="date" name="end" class="form-control col-md-3" style="border-radius: 26px;" value="{{end_value}}">
+        <label for="">..gacha</label>
+    </div>
+    <div class="col-1">
+        <button type="submit" class="btn btn-light-primary" style="border-radius: 26px;">✔️</button>
+    </div>
+    <div class="col-1">
+        <a href="/basket/" class="btn btn-light-danger p-3" style="border-radius: 26px;">🛒 Savat</a>
+    </div>
+</form>
+                             
+<div class="page-content"> 
+    <section class="row" id="containers_list">
+
+
+        {% if products|length > 0 %}
+
+        <div style="overflow-x:auto;">
+        <table class="table table-striped mt-2" id="table1" style="white-space:nowrap;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Sanasi</th>
+                    <th>Nomi</th>
+                    <th>Konteyneri</th>
+                    <th>Qoldiq kub</th>
+                    <th>Qoldiq soni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        
+                        {% if product.baskets.last %}
+                        <button type="button"
+                            data-count="{{ product.baskets.last.count }}"
+                            data-price="{{ product.baskets.last.price }}"
+                            class="btn btn-warning btn-sm rounded-circle" 
+                            style="width:32px;height:32px;padding:0;font-size:18px;line-height:32px;" 
+                            onclick="openProductModal(
+                                '{{ product.id }}', 
+                                '{{ product.product_size }} {{ product.product_size.product_size_title }}', 
+                                '{{ product.product_container.name }}',
+                                this.dataset.count,
+                                this.dataset.price
+                            )">
+                        {% else %}
+                        <button type="button"
+                            id="plus_button{{product.id}}"
+                            data-count="{{ product.baskets.last.count }}"
+                            data-price="{{ product.baskets.last.price }}"
+                            class="btn btn-primary btn-sm rounded-circle" 
+                            style="width:32px;height:32px;padding:0;font-size:18px;line-height:32px;" 
+                            onclick="openProductModal(
+                                '{{ product.id }}', 
+                                '{{ product.product_size }} {{ product.product_size.product_size_title }}', 
+                                '{{ product.product_container.name }}',
+                                this.dataset.count,
+                                this.dataset.price
+                            )">
+                        {% endif %}
+                            
+                            <i class="bi bi-plus"></i>
+                            
+                        </button>
+                    </td>
+                    <td><a href="/container-products-detail/{{ product.product_container.id }}">{{ product.product_container.come_date|date:'d/m/Y' }}</a></td>
+                    <td><a href="/container-products-detail/{{ product.product_container.id }}">{{ product.product_size.product_size_name }}</a></td>
+                    <td><a href="/container-products-detail/{{ product.product_container.id }}">{{ product.product_container.name }}</a></td>
+                    <td>{{ product.rest_cube|floatformat:4 }}</td>
+                    <td>{{ product.rest_qty }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+        <script>
+        // JS search filter for product name and container name
+        document.getElementById('jsSearchInput').addEventListener('input', function() {
+            var value = this.value.trim().toLowerCase();
+            var rows = document.querySelectorAll('#table1 tbody tr');
+            rows.forEach(function(row) {
+                // product name is in cell 2, container name is in cell 3
+                var productName = row.cells[2].textContent.toLowerCase();
+                var containerName = row.cells[3].textContent.toLowerCase();
+                if (productName.includes(value) || containerName.includes(value)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        </script>
+        <!-- Modal -->
+        <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Savatga qo'shish</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form id="productModalForm">
+                  {% csrf_token %}
+                  <input type="hidden" id="modalProductId" name="modalProductId">
+                  <div class="mb-3">
+                    <label for="modalProductName" class="form-label">Mahsulot nomi</label>
+                    <input type="text" class="form-control" id="modalProductName" name="modalProductName" disabled>
+                  </div>
+                  <div class="mb-3">
+                    <label for="modalContainerName" class="form-label">Konteyner nomi</label>
+                    <input type="text" class="form-control" id="modalContainerName" name="modalContainerName" disabled>
+                  </div>
+                  <div class="mb-3">
+                    <label for="modalQty" class="form-label">Soni</label>
+                    <input type="number" step="any" class="form-control" id="modalQty" name="modalQty" min="1" placeholder="Soni kiriting">
+                  </div>
+                  <div class="mb-3">
+                    <label for="modalPrice" class="form-label">Narxi</label>
+                    <input type="number" step="any" class="form-control" id="modalPrice" name="modalPrice" min="0" placeholder="Narx kiriting">
+                  </div>
+                  <button type="submit" class="btn btn-primary">Saqlash</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+        // Modal open function
+        function openProductModal(productId, productName, containerName, count='', price='') {
+            document.getElementById('modalProductId').value = productId;
+            document.getElementById('modalProductName').value = productName;
+            document.getElementById('modalContainerName').value = containerName;
+            document.getElementById('modalQty').value = count;
+            document.getElementById('modalPrice').value = price;
+            var modal = new bootstrap.Modal(document.getElementById('productModal'));
+            modal.show();
+        }
+        // intcomma function (simple version for JS)
+        function intcomma(x) {
+            if (typeof x === 'number') x = x.toString();
+            let parts = x.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return parts.join('.');
+        }
+
+        function sumTableColumn(cls, isFloat) {
+            let sum = 0;
+            document.querySelectorAll('.' + cls).forEach(function(td) {
+                let val = td.textContent.replace(/,/g, '');
+                if (isFloat) {
+                    val = parseFloat(val) || 0;
+                } else {
+                    val = parseInt(val) || 0;
+                }
+                sum += val;
+            });
+            return sum;
+        }
+
+        function updateTotals() {
+            let qty = sumTableColumn('sold-qty', true);
+            let cube = sumTableColumn('sold-cube', true);
+            let uzs = sumTableColumn('sold-uzs', true);
+            let usd = sumTableColumn('sold-usd', true);
+            document.getElementById('total-sold-qty').textContent = intcomma(qty.toFixed(2));
+            document.getElementById('total-sold-cube').textContent = intcomma(cube.toFixed(4));
+            document.getElementById('total-sold-uzs').textContent = intcomma(uzs.toFixed(2));
+            document.getElementById('total-sold-usd').textContent = intcomma(usd.toFixed(2));
+        }
+
+        function formatTableNumbers() {
+            // Format sold columns
+            document.querySelectorAll('.sold-qty').forEach(function(td) {
+                td.textContent = intcomma(td.textContent.replace(/,/g, ''));
+            });
+            document.querySelectorAll('.sold-cube').forEach(function(td) {
+                td.textContent = intcomma(td.textContent.replace(/,/g, ''));
+            });
+            document.querySelectorAll('.sold-uzs').forEach(function(td) {
+                td.textContent = intcomma(td.textContent.replace(/,/g, ''));
+            });
+            document.querySelectorAll('.sold-usd').forEach(function(td) {
+                td.textContent = intcomma(td.textContent.replace(/,/g, ''));
+            });
+            // Format rest columns
+            document.querySelectorAll('td:nth-child(5)').forEach(function(td) { // rest_cube
+                if (!td.classList.contains('sold-cube')) td.textContent = intcomma(td.textContent.replace(/,/g, ''));
+            });
+            document.querySelectorAll('td:nth-child(6)').forEach(function(td) { // rest_qty
+                if (!td.classList.contains('sold-qty')) td.textContent = intcomma(td.textContent.replace(/,/g, ''));
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            formatTableNumbers();
+            updateTotals();
+        });
+        </script>
+        </div>
+
+        {% else %}
+        <div class="col-md-12">
+            <h5 class="text-center mt-5">Mahsulotlar mavjud emas !</h5>
+        </div>
+        {% endif %}   
+
+    </section>
+</div>
+
+<script>
+// Handle form submission via AJAX
+const productModalForm = document.getElementById('productModalForm');
+productModalForm.addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const formData = new FormData(productModalForm);
+    const data = {
+        product_id: formData.get('modalProductId'),
+        count: formData.get('modalQty'),
+        price: formData.get('modalPrice'),
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+    };
+    $.ajax({
+        url: '?type=add',
+        type: 'POST',
+        data: data,
+        success: function(result) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
+            modal.hide();
+            console.log(data['product_id'])
+            $('#plus_button'+data['product_id']).removeClass('btn-primary').addClass('btn-warning')
+            $('#plus_button'+data['product_id']).attr('data-count', data['count'])
+            $('#plus_button'+data['product_id']).attr('data-price', data['price'])
+        },
+        error: function(xhr, status, error) {
+            console.error('There was a problem with the AJAX operation:', error);
+            alert('Xatolik yuz berdi, qayta urinib ko‘ring!');
+        }
+    });
+});
+</script>
+
+{% endblock content %}

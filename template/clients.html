@@ -1,0 +1,280 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="static/assets/extensions/simple-datatables/style.css">
+
+
+
+        <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+
+
+            <div class="page-heading">
+
+                <section class="section"> 
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text">Mijozlar</h3> 
+                            <div class="add-clients-btn d-flex justify-content-end" style="margin-top: -45px;">
+                                <a href="#" class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#border-less">Mijoz qo'shish +</a>
+                            </div>  
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped  mt-2" id="table1">
+                                <thead>
+                                    <tr>
+                                        <th>Ism Familya</th>
+                                        <th>Telefon</th>
+                                        <th>Hisobi ( $ )</th>
+                                        <th>Hisobi ( so'm )</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in clients %}
+                                    <tr id="tr_client-{{ c.id }}">
+                                        <td id="td_name-{{ c.id }}">{{ c.name }}</td>
+                                        <td id="td_phone-{{ c.id }}">{{ c.phone }}</td>
+                                        <td 
+                                        {% if c.debt_usd > 0 %}
+                                            class="text-success"
+                                        {% elif c.debt_usd < 0 %}
+                                            class="text-danger"
+                                        {% endif %}
+                                            >{{ c.debt_usd }}</td>
+                                        <td 
+                                        {% if c.debt_uzs > 0 %}
+                                            class="text-success"
+                                        {% elif c.debt_uzs < 0 %}
+                                            class="text-danger"
+                                        {% endif %}
+                                            >{{ c.debt_uzs }}</td>
+                                        
+                                        <td><i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                            data-bs-target="#default" onclick="getCliendId( '{{ c.id }}' )"></i>
+                                        </td>
+                                        <td><i class="bi bi-trash text-danger fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal" onclick="getCliendId( '{{ c.id }}' )"></i>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                   
+                                   
+                                    
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+
+
+       <!-- modals -->
+<div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Mijoz qo'shish</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+           <form action="{% url 'main:clients' %}" method="post" >{% csrf_token %}
+                <div class="form-group">
+                    <label for="basicInput">Ism Familiya</label>
+                    <input type="text" class="form-control mt-2" id="basicInput" placeholder="Ism familiya" name="name" required>
+                    
+                    
+                </div>
+                <div class="form-group">
+                    <label for="basicInput">Telefon</label>
+                    <input type="text" class="form-control mt-2" id="basicInput" placeholder="Telefon" maxlength="13" name="phone" required >
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Orqaga</span>
+                    </button>
+                    <button type="submit" class="btn btn-primary ms-1" >
+                        Qo'shish
+                    </button>
+                </div>
+           </form>
+        </div>
+    </div>
+</div>
+</div>
+<!-- endmodals --> 
+
+<!-- modals 2 -->
+<div class="modal fade text-left" id="default" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">Mijoz tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="#" method="post" id="EditClientForm"> {% csrf_token %}
+                <div class="form-group">
+                    <label for="basicInput">Ism Familya</label>
+                    <input type="text" class="form-control" id="editNameId" placeholder="Name" name="editName">
+                    
+                    
+                </div>
+                <h6 class="text-danger" id="error_name" style="display: none;">Maydon bo'sh bo'lishi mumkin emas !</h6>
+
+                    <label for="basicInput">Telefon</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="editPhoneId" placeholder="phone" name="editPhone" maxlength="13">
+                    <input type="number" step="any" class="form-control" id="clientID"  style="display: none;" name="client_id" > 
+                </div>
+                <h6 class="text-danger" id="error_phone" style="display: none;">Maydon bo'sh bo'lishi mumkin emas !</h6>
+           </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn" data-bs-dismiss="modal">
+                <i class="bx bx-x d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Orqaga</span>
+            </button>
+            <button type="button" class="btn btn-warning ms-1" id="EditClientBtn" >
+                <i class="bx bx-check d-block d-sm-none"></i>
+                <span class="d-none d-sm-block text-white">O'zgartirish</span>
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade text-left" id="deleteModal" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">Mijoz o'chirish</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            Mijozni rostdan o'chirmoqchimisiz?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn" data-bs-dismiss="modal">
+                <i class="bx bx-x d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Orqaga</span>
+            </button>
+            <a id="deleteBtn" class="btn btn-danger ms-1" href="#">
+                <i class="bx bx-check d-block d-sm-none"></i>
+                <span class="d-none d-sm-block text-white">O'chirish</span>
+            </a>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- endmodals 2 -->
+
+
+<script>
+    function getCliendId(id){
+        $('#editPhoneId').val($(`#td_phone-${id}`).text())
+        $('#editNameId').val($(`#td_name-${id}`).text())
+        $(`#clientID`).val(id)
+        $(`#deleteBtn`).attr('href', '/client_delete/'+id)
+
+    }
+
+    
+    $(document).ready(function() {
+        
+        $('#EditClientBtn').click(function(event) {
+            event.preventDefault()
+
+            isEmpty = false
+
+            if ($('#editNameId').val().trim() === '') {
+                isEmpty = true;
+                $('#error_name').show()
+                return false; 
+            }else{
+                isEmpty = false;
+                $('#error_name').hide()
+            }
+
+            if ($('#editPhoneId').val().trim() === '') {
+                isEmpty = true;
+                $('#error_phone').show()
+                return false; 
+            }else{
+                isEmpty = false;
+                $('#error_phone').hide()
+            }
+            
+            if(!isEmpty){
+                $('#error_name').hide()
+                $('#error_phone').hide()
+
+                let deleteForm = $(`#EditClientForm`).serialize()
+                $.ajax({
+                    url: '{% url "main:edit-client" %}',  
+                    type: 'POST',
+                    data: deleteForm,
+                    success: function(response) {
+                        
+                        $(`#tr_client-${response.data.client_id}`).html(`
+    
+                                    <td id="td_name-${response.data.client_id}">${response.data.client_name}</td>
+                                    <td id="td_phone-${response.data.client_id}">${response.data.client_phone}</td>
+                                    <td>${response.data.client_debt_usd}</td>
+                                    <td>${response.data.client_debt_uzs}</td>
+                                    <td><i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                        data-bs-target="#default" onclick="getCliendId( '${response.data.client_id}' )"></i>
+                                    </td>
+                        `)
+    
+                        messageToast(response.status, response.message)
+                        
+                        $('#default').modal('hide');
+                    
+    
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Error updating data: ' + error);
+                        messageToast(status, error)
+    
+                    }
+                });
+
+            }
+
+
+
+        })
+    })
+
+
+
+</script>
+
+
+<script src="static/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
+<script src="static/assets/static/js/pages/simple-datatables.js"></script>
+
+{% endblock %}

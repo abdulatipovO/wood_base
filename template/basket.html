@@ -1,0 +1,270 @@
+{% extends 'wrapper.html' %}
+{% block content %}
+
+<div id="main">
+    <header class="mb-3 d-flex justify-content-between align-items-center">
+        <div>
+            <a href="#" class="burger-btn d-block d-xl-none">
+                <i class="bi bi-justify fs-3"></i>
+            </a>
+            <h3 class="d-inline ms-3">Savat</h3>
+        </div>
+        <div>
+            <a href="/delete_basket/0" class="btn btn-danger">Savatni tozalash</a>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#continueModal">Davom etish</button>
+        </div>
+    </header>
+    <div class="container mt-2">
+        <table class="table table-bordered align-middle text-center">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Mahsulot</th>
+                    <th>Soni</th>
+                    <th>Kubi</th>
+                    <th>Narxi (dona)</th>
+                    <th>Narxi (kub)</th>
+                    <th>Jami narxi</th>
+                    <th>O'chirish</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for basket in baskets %}
+                <tr data-id="{{ basket.id }}" data-calc-size="{{ basket.product.product_size.calc_size }}">
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ basket.product.product_size.product_size_name }}</td>
+                    <td contenteditable="true" class="basket-edit basket-count">{{ basket.count }}</td>
+                    <td contenteditable="true" class="basket-edit basket-cube">{{ basket.cube|floatformat:5 }}</td>
+                    <td contenteditable="true" class="basket-edit basket-price">{{ basket.price }}</td>
+                    <td contenteditable="true" class="basket-edit basket-price-cube"></td>
+                    <td>{% if basket.total_price %}{{ basket.total_price|floatformat:2 }}{% endif %}</td>
+                    <td><a href="/delete_basket/{{basket.id}}" class="btn btn-danger btn-sm basket-delete"><i class="bi bi-trash"></i></a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8" class="text-center">Savat bo'sh</td></tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6" class="text-end fw-bold">Jami summa:</td>
+                    <td id="basket-total" class="fw-bold text-success"></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+{% csrf_token %}
+    <!-- Modal -->
+    <div class="modal fade" id="continueModal" tabindex="-1" aria-labelledby="continueModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="continueModalLabel">To'lov ma'lumotlari</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="paymentForm">
+              <div class="mb-3">
+                <label for="currency" class="form-label">Valyuta</label>
+                <select class="form-select" id="currency" name="currency">
+                  <option value="UZS">So'm</option>
+                  <option value="USD">Dollar</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="rate" class="form-label">Kurs</label>
+                <input type="number" step="any" class="form-control" id="rate" name="rate" min="0"  placeholder="Kurs kiriting">
+              </div>
+              <div class="mb-3">
+                <label for="amount" class="form-label">Umumiy summa</label>
+                <input type="number" step="any" class="form-control" id="amount" name="amount" min="0"  placeholder="Summa" disabled>
+              </div>
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="isCredit" name="isCredit">
+                <label class="form-check-label" for="isCredit">Nasiyaga savdo</label>
+              </div>
+              <div class="mb-3">
+                <label for="client" class="form-label">Mijozni tanlang</label>
+                <select class="form-select" id="client" name="client">
+                  <option value=""></option>
+                  {% for client in clients %}
+                  <option value="{{ client.id }}">{{ client.name }}</option>
+                  {% endfor %}
+                </select>
+                <button type="button" id="addClientBtn" class="btn btn-sm btn-success mt-3">Mijoz qo'shish +</button>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+            <button type="submit" form="paymentForm" class="btn btn-primary">Tasdiqlash</button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+
+function reloadClientSelect(){
+    $.ajax({
+        url: '',
+        method: 'GET',
+        success: function(data) {
+            let get_select = $(data).find('#client');
+            $('#client').html(get_select.html());
+        }
+    });
+}
+
+// Mijoz qo'shish tugmasi bosilganda popup ochish
+$(document).on('click', '#addClientBtn', function(e) {
+    e.preventDefault();
+    var w = 600;
+    var h = 200;
+    var left = (window.screen.width/2)-(w/2);
+    var top = (window.screen.height/2)-(h/2);
+    window.open('/client_add_popup/', 'Mijoz qo\'shish', `width=${w},height=${h},left=${left},top=${top}`);
+});
+// Intcomma formatlash
+function intcomma(x) {
+    x = parseFloat(x).toFixed(2);
+    var parts = x.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join('.');
+}
+// Jadvaldagi barcha ma'lumotlarni olish
+function getBasketData() {
+    var data = [];
+    $('tr[data-id]').each(function() {
+        var $row = $(this);
+        data.push({
+            id: $row.data('id'),
+            count: parseFloat($row.find('.basket-count').text()) || 0,
+            cube: parseFloat($row.find('.basket-cube').text()) || 0,
+            price: parseFloat($row.find('.basket-price').text()) || 0,
+            price_cube: parseFloat($row.find('.basket-price-cube').text()) || 0
+        });
+    });
+    return data;
+}
+
+// Modal form submit
+$('#paymentForm').on('submit', function(e) {
+    e.preventDefault();
+    var basketData = getBasketData();
+    var formData = {
+        currency: $('#currency').val(),
+        rate: $('#rate').val(),
+        amount: $('#amount').val(),
+        isCredit: $('#isCredit').is(':checked'),
+        client: $('#client').val(),
+        baskets: basketData
+    };
+    // CSRF token
+    var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    $.ajax({
+        url: window.location.pathname,
+        type: 'POST',
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        headers: { 'X-CSRFToken': csrfToken },
+        success: function(response) {
+            // Success: sahifani yangilash yoki modalni yopish
+            location.reload();
+        },
+        error: function(xhr, status, error) {
+            messageToast(status, xhr.responseJSON.message)
+        }
+    });
+});
+// Soni va kubi o'zgarishini sinxronlashtiruvchi funksiya
+function formatCube(val) {
+    return parseFloat(val).toFixed(5);
+}
+
+
+function updateTotalPrice($row) {
+    var count = parseFloat($row.find('.basket-count').text()) || 0;
+    var price = parseFloat($row.find('.basket-price').text()) || 0;
+    var total = count * price;
+    $row.find('td').eq(6).text(intcomma(total));
+    updateGrandTotal();
+}
+
+function updateGrandTotal() {
+    var sum = 0;
+    $('tr[data-id]').each(function() {
+        var $row = $(this);
+        var count = parseFloat($row.find('.basket-count').text()) || 0;
+        var price = parseFloat($row.find('.basket-price').text()) || 0;
+        sum += count * price;
+    });
+    $('#basket-total').text(intcomma(sum));
+    $('#amount').val(sum.toFixed(2));
+}
+
+$(document).ready(function() {
+    // Soni o'zgartirilsa kubi va jami narx hisoblanadi
+    $('.basket-count').on('input', function() {
+        var $row = $(this).closest('tr');
+        var count = parseFloat($(this).text()) || 0;
+        var calc_size = parseFloat($row.data('calc-size')) || 0;
+        var price = parseFloat($row.find('.basket-price').text()) || 0;
+        var cube = count * calc_size;
+        $row.find('.basket-cube').text(formatCube(cube));
+        // Narxi (kub) hisoblash: dona narxi * 1 kub uchun nechta dona
+        var price_cube = price * (1 / calc_size);
+        $row.find('.basket-price-cube').text(price_cube.toFixed(2));
+        updateTotalPrice($row);
+    });
+
+    // Kubi o'zgartirilsa soni va jami narx hisoblanadi
+    $('.basket-cube').on('input', function() {
+        var $row = $(this).closest('tr');
+        var cube = parseFloat($(this).text()) || 0;
+        var calc_size = parseFloat($row.data('calc-size')) || 0;
+        var price_cube = parseFloat($row.find('.basket-price-cube').text()) || 0;
+        var count = calc_size > 0 ? cube / calc_size : 0;
+        $row.find('.basket-count').text(count.toFixed(2));
+        // Narxi (dona) hisoblash: kub narxi / 1 kub uchun nechta dona
+        var price = price_cube * calc_size;
+        $row.find('.basket-price').text(price.toFixed(2));
+        updateTotalPrice($row);
+    });
+
+    // Narxi (dona) o'zgartirilsa kub narxi va jami narx hisoblanadi
+    $('.basket-price').on('input', function() {
+        var $row = $(this).closest('tr');
+        var price = parseFloat($(this).text()) || 0;
+        var calc_size = parseFloat($row.data('calc-size')) || 0;
+        // Narxi (kub) hisoblash: dona narxi * 1 kub uchun nechta dona
+        var price_cube = price * (1 / calc_size);
+        $row.find('.basket-price-cube').text(price_cube.toFixed(2));
+        updateTotalPrice($row);
+    });
+
+    // Narxi (kub) o'zgartirilsa dona narxi va jami narx hisoblanadi
+    $('.basket-price-cube').on('input', function() {
+        var $row = $(this).closest('tr');
+        var price_cube = parseFloat($(this).text()) || 0;
+        var calc_size = parseFloat($row.data('calc-size')) || 0;
+        // Narxi (dona) hisoblash: kub narxi / 1 kub uchun nechta dona
+        var price = price_cube * calc_size;
+        $row.find('.basket-price').text(price.toFixed(2));
+        updateTotalPrice($row);
+    });
+
+    // Dastlabki jami narxlarni to'g'rilash
+    $('tr[data-id]').each(function() {
+        updateTotalPrice($(this));
+    });
+    updateGrandTotal();
+    // Modal ochilganda ham inputga jami narxni joylash
+    $('#continueModal').on('show.bs.modal', function() {
+        updateGrandTotal();
+    });
+});
+</script>
+
+{% endblock %}

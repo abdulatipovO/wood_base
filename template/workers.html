@@ -1,0 +1,211 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="static/assets/extensions/simple-datatables/style.css">
+
+
+
+        <div id="main">
+
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            <div class="page-heading">
+
+                <section class="section"> 
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text">Ishchilar</h3> 
+                            <div class="add-clients-btn d-flex justify-content-end" style="margin-top: -45px;">
+                                <a href="#" class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#border-less">Ishchi qo'shish +</a>
+                            </div> 
+                            
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped  mt-2" id="table1">
+                                <thead>
+                                    <tr >
+                                        <th>F.I.O</th>
+                                        <th>Telefon</th>
+                                        <th>Tug'ilgan sanasi</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for w in workers %}
+                                    <tr id="td_worker-{{ w.id }}">
+                                        <td id="td_worker_name-{{ w.id }}">{{ w.name }}</td>
+                                        <td id="td_worker_phone-{{ w.id }}">{{ w.phone }}</td>
+                                        <td id="td_worker_birth_date-{{ w.id }}" >{{ w.birth_date|date:'m/d/Y' }}</td>
+                                        <td class="d-flex justify-content-center">
+                                            <i class="bi bi-pencil-square text-warning fs-5 cursor-pointer m-2" role="button" data-bs-toggle="modal"
+                                            data-bs-target="#default" onclick="editWorker('{{ w.id }}')"></i>
+                                            <i class="bi bi-trash-fill text-danger fs-5 cursor-pointer m-2" role="button" onclick="deleteWorker('{{ w.id }}')"></i>
+                                        </td>
+                                    </tr>
+
+                                    {% endfor %}
+                                   
+                                    
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+
+
+    <!-- modals -->
+    <div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+    role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ishchi qo'shish</h5>
+                <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="basicInput">F.I.O</label>
+                        <input type="text" class="form-control" id="basicInput" placeholder="F.I.O" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="basicInput2">Telefon</label>
+                        <input type="text" class="form-control" id="basicInput2" placeholder="Telefon" maxlength="13" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="basicInput3">Tug'ilgan sanasi</label>
+                        <input type="date" class="form-control" id="basicInput3" name="birth_date"  required>
+                        
+                    </div>
+            
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                            <i class="bx bx-x d-block d-sm-none"></i>
+                            <span class="d-none d-sm-block">Orqaga</span>
+                        </button>
+                        
+                   
+                        <button type="submit" class="btn btn-primary ms-1 text-white">
+                            Qo'shish
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            
+        </div>
+    </div>
+    </div>
+    <!-- endmodals -->         
+
+    <div class="modal fade text-left" id="default" tabindex="-1" role="dialog"
+    aria-labelledby="myModalLabel1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel1">Mijoz ma'lumotlari</h5>
+                <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="editWorkerForm" action="{% url 'main:edit-worker' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="basicInput">F.I.O</label>
+                        <input type="text" class="form-control" id="modalName" placeholder="F.I.O" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="basicInput2">Telefon</label>
+                        <input type="text" class="form-control" id="modalPhone" placeholder="Telefon" maxlength="13" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="basicInput3">Tug'ilgan sanasi</label>
+                        <input type="date" class="form-control" id="modalDate" name="birth_date" required>
+                        <input type="text" class="form-control" value="" name="worker_id" id="modal_worker_id" style="display: none;">
+                    </div>
+            
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                            <i class="bx bx-x d-block d-sm-none"></i>
+                            <span class="d-none d-sm-block">Orqaga</span>
+                        </button>
+                        
+                   
+                        <button type="submit" class="btn btn-warning ms-1 text-white" id="editWorkerBtn">
+                            Tahrirlash
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+    function editWorker(id){
+        let name = $(`#td_worker_name-${id}`).text()
+        let phone = $(`#td_worker_phone-${id}`).text()
+        let birth_date = $(`#td_worker_birth_date-${id}`).text()
+
+        let dateParts = birth_date.split('/');
+        let month = dateParts[0];
+        let day = dateParts[1];
+        let year = dateParts[2];
+        
+
+        $('#modalName').val(name)
+        $('#modalPhone').val(phone)
+        $('#modalDate').val(`${year}-${month}-${day}`)
+        $('#modal_worker_id').val(id)
+
+    }
+
+    function deleteWorker(id){
+        
+        $.ajax({
+            url: '{% url "main:delete-worker" %}',  
+            type: 'GET',
+            data: {"id":id},
+            success: function(response) {
+
+                $(`#td_worker-${ id }`).remove()
+
+                messageToast(response.status, response.message)
+
+
+            },
+            error: function(xhr, status, error) {
+                console.log('Error updating data: ' + error);
+                messageToast(status, error)
+
+            }
+        });
+    }
+
+    
+
+
+</script>
+
+<script src="static/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
+<script src="static/assets/static/js/pages/simple-datatables.js"></script>
+
+
+{% endblock %}

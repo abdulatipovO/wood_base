@@ -1,0 +1,604 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+
+
+        <div id="main">
+
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+
+            
+            
+
+
+            <div class="page-heading">
+                <section class="section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text">Chiqimlar</h3>
+                            <div class="add-clients-btn d-flex justify-content-end" style="margin-top: -45px;">
+                                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#border-less">Chiqim turi qo'shish +</a>
+                            </div>
+                        </div>
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <select id="first_select_expense" class="searchable">
+                                        <option value="0" selected>Chiqim turi</option>
+                                        {% for ex in expense_types %}
+                                        <option value="{{ ex.id }}">{{ ex.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <p class="expense_type_error_msg text-center text-danger" style="display: none;">Chiqim turlaridan birini tanlang !</p>
+
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch d-flex justify-content-center mt-1">
+                                    <input class="form-check-input fs-4" type="checkbox" id="switchExpense">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <select id="second_select_expense" class="searchable" disabled>
+                                        <option value="0" selected>Ishchilar</option>
+                                        {% for w in workers %}
+                                        <option value="{{ w.id }}">{{ w.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <p class="workers_error_msg text-center text-danger" style="display: none;">Ishchilardan birini tanlang !</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row d-flex justify-content-center mt-5">
+                            <div class="col-md-2">
+                                <select class="form-select" id="basicSelect">
+                                    <option >Valyutani turi</option>
+                                    <option value="1">Dollar ( $ )</option>
+                                    <option value="2">So'm</option>
+                                </select>
+                                <p class="currency_type_error_msg text-center text-danger" style="display: none;">Valyuta turlaridan birini tanlang !</p>
+
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="number" step="any" class="form-control" id="ex_sumInput" placeholder="Summa">
+                                </div>
+                                <p class="summa_error_msg text-center text-danger" style="display: none;">Summa kiriting !</p>
+
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input type="number" step="any" class="form-control" id="exchangeRateInput" placeholder="Kurs">
+                                </div>
+                                <p class="currency_summa_error_msg text-center text-danger" style="display: none;">Valyuta kursini kiriting !</p>
+
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <button class="btn btn-success w-100" id="submitButton">Tasdiqlash</button>
+                                </div>
+
+                            </div>
+                            <div class="table-responsive p-5">
+                                <p class="container_error_msg text-center text-danger" style="display: none;">Konteynerlardan birini belgilang !</p>
+
+                                <table class="table table-bordered mb-0 text-center">
+                                    <thead>
+                                        <tr>
+                                            <th >#</th>
+                                            <th>Konteyner</th>
+                                       
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for c in containers %}
+                                        <tr>
+                                            <td style="width: 5%;">{{ forloop.counter }}</td>
+                                            <td class="text-bold-500">{{ c.name  }}</td>
+                                           
+                                            <td>
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="form-check-input container-check-input form-check-warning form-check-glow"  name="customCheck" id="{{ c.id }}" required>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            
+
+
+
+
+<!-- modals -->
+        <div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+        role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+            <div class="modal-content" style="height: 500px;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chiqim turlari</h5>
+                    <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                        aria-label="Close">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="sizeForm">
+                        {% csrf_token %}
+                        <div class="row d-flex" >
+                            <h6 class="text-danger text-center msg-handle"></h6>
+                            <div class="col-md-9">
+                                <div class="form-group d-flex justify-content-end">
+                                    <input type="text" class="form-control" name="expense_type_name" placeholder="Chiqim turi" required>
+                                
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <button class="btn badge bg-success p-2 mt-1 border-0 text-white" type="button" id="addSizeButton" >Qo'shish +</button >
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- table -->
+                    <div class="table-responsive mt-3" style="overflow-y: scroll; max-height:300px;">
+                        <table class="table table-bordered mb-0 table-expense" id="sizesTable" >
+                            <thead>
+                                <tr>
+                                    <th>Chiqim turi nomi</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in expense_types %}
+                                <tr id="tr_expense-{{ s.id }}">
+                                    <td class="text-bold-500">
+                                    <div class="sizeInfo-{{ s.id }}">
+                                    {{ s.title }}
+                                    </div>
+                                    <form id='updateSizeForm-{{ s.id }}'>
+                                        {% csrf_token %}
+                                        <div class="row editFormSize-{{ s.id }}" style="display: none;">
+
+                                            <div class="col-md-12">
+                                                <input type="text" class="form-control" value="{{ s.title }}" name="expense_type_title">
+                                            </div>
+                                        
+                                            <input type="text" value="{{ s.id }}" name="expense_type_id" style="display: none;">
+                                        </div>
+                                        </form>
+
+                                    </td>
+                                    <td class="text-center m-2">
+                                        <a href="#" onclick="editSize('{{ s.id }}')" id="pensil-edit-{{ s.id }}"><i class="bi bi-pencil-square fs-5 text-warning edit-icon"></i></a>
+                                        <a href="#" onclick="deleteExpense('{{ s.id }}')" id="trash-edit-{{ s.id }}"><i class="bi bi-trash-fill fs-5 text-danger delete-icon"></i></a>
+                                        <a href="#" onclick="checkSize('{{ s.id }}')" id="check-edit-{{ s.id }}"style='display:none;' ><i class="bi bi-check-square fs-5 text-success check-icon"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+        </div>
+<!-- endmodals -->      
+
+
+
+
+<script>
+
+    let course = localStorage.getItem("course");
+
+    $('#exchangeRateInput').val(course)
+
+    $(document).ready(function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        let csrftoken = getCookie('csrftoken');
+    
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        })
+
+   let $select_ = $('select.searchable').selectize()
+   let selectize1 = $select_[0].selectize
+   let selectize2 = $select_[1].selectize
+
+
+    $(document).ready(function() {
+        $('#switchExpense').on('change', function() {
+            if(this.checked){
+
+                selectize1.disable()
+                selectize2.enable()
+
+            }else{
+                selectize2.disable()
+                selectize1.enable()
+                
+
+
+            }
+        });
+    });
+
+
+//main expense  
+
+$(document).ready(function() {
+    $('#submitButton').click(function(event) {
+        event.preventDefault();
+
+        let isValid = true;
+
+        // Check required selects
+        
+        if ($('#basicSelect').val() == 'Valyutani turi') {
+            isValid = false
+            $('.currency_type_error_msg').show()
+        }else{
+            isValid = true
+            $('.currency_type_error_msg').hide()
+        }
+
+        // Check required text inputs
+        if ($('#ex_sumInput').val().trim() === '') {
+            isValid = false;
+            $('.summa_error_msg').show()
+        }else{
+            isValid = true;
+            $('.summa_error_msg').hide()
+        }
+        
+        if ($('#exchangeRateInput').val().trim() === '') {
+            isValid = false;
+            $('.currency_summa_error_msg').show()
+        }else{
+            isValid = true;
+            $('.currency_summa_error_msg').hide()
+        }
+
+        // Check required checkboxes
+
+        if (!$('#switchExpense').is(':checked')) {
+
+            if ($('#first_select_expense').val() == '0') {
+                isValid = false;
+                $('.expense_type_error_msg').show()
+            }else{
+                isValid = true;
+                $('.expense_type_error_msg').hide()
+            }
+
+        }else{
+            $('.expense_type_error_msg').hide()
+
+            if ($('#second_select_expense').val() == '0') {
+                isValid = false;
+                $('.workers_error_msg').show()
+            }else{
+                isValid = true;
+                $('.workers_error_msg').hide()
+            }
+        }
+
+        if (!$('.container-check-input').is(':checked')) {
+            isValid = false;
+            $('.container_error_msg').show()
+        }else{
+            isValid = true;
+            $('.container_error_msg').hide()
+        }
+
+        if (!isValid) {
+            //alert('errorMessage');
+            return false;
+        }
+
+        // Collecting data from the form
+        let expenseType = $('#first_select_expense').val();
+        let worker = $('#second_select_expense').val();
+        let currency = $('#basicSelect').val();
+        let ex_sum = $('#ex_sumInput').val();
+        let exchangeRate = $('#exchangeRateInput').val();
+        
+        // Collecting checked checkboxes
+        let switchOnOff = [];
+        let checkedItems = [];
+        $('.container-check-input:checked').each(function() {
+            checkedItems.push($(this).attr('id'));
+        });
+        if ($('#switchExpense').is(':checked')) {
+            switchOnOff.push($(this).attr('id'));
+            
+        }
+
+        // Creating the data object to send to the backend
+        let formData = {
+            'expense_type': expenseType,
+            'worker': worker,
+            'currency': currency,
+            'ex_sum': ex_sum,
+            'exchange_rate': exchangeRate,
+            'checked_items': checkedItems,
+            'switchOnOff': switchOnOff,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        };
+
+        // Sending the AJAX request
+
+        console.log(formData)
+
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "main:create-main-expense" %}',
+            data: formData,
+            success: function(response) {
+               // alert('Data submitted successfully!');
+                // Handle success response
+                messageToast(response.status, response.message)
+                
+                location.reload()
+
+                // Reset all inputs, selects, and checkboxes
+                $('#first_select_expense').val('0').trigger('change'); // Reset select to default option
+                $('#second_select_expense').val('0').trigger('change'); // Reset select to default option
+                $('#basicSelect').val('Valyutani turi'); // Reset select to default option
+                $('#ex_sumInput').val(''); // Clear ex_sum input
+                $('#exchangeRateInput').val(''); // Clear exchange rate input
+                $('.form-check-input').prop('checked', false); // Uncheck all checkboxes
+            },
+            error: function(error) {
+               // alert('Error submitting data');
+                // Handle error response
+                messageToast(status, error)
+
+            }
+
+        });
+
+    });
+});
+
+
+
+
+
+//end main expense  
+
+
+
+
+//expense 
+
+
+    $(document).ready(function() {
+        
+        var selectizeControl = $('select.searchable').selectize();
+        var selectizeInstance = selectizeControl[0].selectize;
+
+        $('#addSizeButton').click(function(event) {
+            event.preventDefault();
+            let formData = $('#sizeForm').serialize();
+    
+            let isEmpty = false;
+    
+           
+            $('#sizeForm input').each(function() {
+                if ($(this).val().trim() === '') {
+                    isEmpty = true;
+                    return false; // Break out of the each loop
+                }
+            });
+            
+            if (isEmpty) {
+                $('.msg-handle').text("Bo'sh bo'lishi mumkin emas !")
+                return;
+            }
+    
+            $.ajax({
+                type: 'POST',
+                url: '{% url "main:add-expense-type" %}', 
+                data: formData,
+                success: function(response) {
+
+                    
+                    let newRow = `
+                        <tr id="tr_expense-${ response.data.id }">
+                            <td class="text-bold-500">
+                               <div class="sizeInfo-${ response.data.id }">
+                               ${ response.data.title }
+                               </div>
+                               <form id='updateSizeForm-${ response.data.id } '>
+                                   
+                                <div class="row editFormSize-${ response.data.id }" style="display: none;">
+
+                                    <div class="col-md-12">
+                                        <input type="text" class="form-control" value="${ response.data.title }" name="expense_type_title" id="expense_type_title-${response.data.id}">
+                                    </div>
+                                   
+                                    <input type="text" value=${ response.data.id } name="expense_type_id" style="display:none;" id="expense_type_id-${response.data.id}">
+                                </div>
+                                </form>
+
+                            </td>
+                                <td class="text-center m-2">
+                                    <a href="#" onclick="editSize('${ response.data.id }')" id="pensil-edit-${ response.data.id }"><i class="bi bi-pencil-square fs-5 text-warning edit-icon"></i></a>
+                                    <a href="#" onclick="deleteExpense('${ response.data.id }')" id="trash-edit-${ response.data.id }"><i class="bi bi-trash-fill fs-5 text-danger delete-icon"></i></a>
+                                   
+                                    <a href="#" onclick="checkSize('${ response.data.id }')" id="check-edit-${ response.data.id }"style="display:none;" ><i class="bi bi-check-square fs-5 text-success check-icon"></i></a>
+                                </td>
+                        </tr>
+                    `;
+                    
+                    // Append the new row to the table body
+                    $('.table-expense tbody').append(newRow);
+                    $('#sizeForm')[0].reset();
+                    $('.msg-handle').text('')
+
+                    $(`.editFormSize-${ response.data.id }`).css({"display":"none"}) 
+                    $(`#check-edit-${ response.data.id }`).css({"display":"none"}) 
+
+
+
+
+
+                    var newOption = {
+                        value: `${response.data.id}`, 
+                        text: `${response.data.title}`,
+                        selected: false,
+                    };
+            
+                    selectize1.addOption(newOption);
+            
+                    selectize1.addItem(newOption.value);
+                    selectize1.setValue('0')
+                    messageToast(response.status, response.message)
+                    
+                },
+                error: function(error) {
+                    alert('Error adding size');
+                    messageToast(status, error)
+
+                }
+            });
+        });
+    })
+    
+        function editSize(id) {
+            $(`#pensil-edit-${id}`).css({'display':'none'})
+            $(`.sizeInfo-${id}`).css({'display':'none'})
+            $(`.editFormSize-${id}`).css({'display':'flex'})
+            $(`#check-edit-${id}`).css({'display':'flex'})
+            $(`#trash-edit-${id}`).css({'display':'none'})
+            
+            
+        }
+
+        function checkSize(id){
+            $(`#check-edit-${id}`).css({'display':'none'})
+            $(`#pensil-edit-${id}`).css({'display':''})
+            $(`.sizeInfo-${id}`).show()
+            $(`.editFormSize-${id}`).css({'display':'none'})
+            $(`#trash-edit-${id}`).show()
+
+
+            let updateFormData = $(`#updateSizeForm-${id}`).serialize()
+      
+            if(updateFormData == ''){
+                let getData = {
+                    "expense_id": $(`#expense_type_id-${id}`).val(),
+                    "expense_type_title": $(`#expense_type_title-${id}`).val()
+                }
+                
+                console.log($(`#expense_type_id-${id}`).val(),  $(`#expense_type_title-${id}`).val())
+    
+                $.ajax({
+                    type: 'GET',
+                    url: '{% url "main:edit-expense-type" %}', 
+                    data: getData,
+                    success: function(response) {
+                        
+                        $(`.sizeInfo-${id}`).text(response.data.title)
+                    
+                    },
+                    error: function(error) {
+                        alert('Error adding size');
+                    }
+                });
+                
+            }else{
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "main:edit-expense-type" %}', 
+                    data: updateFormData,
+                    success: function(response) {
+                        
+                        $(`.sizeInfo-${id}`).text(response.data.title)
+                    
+                    },
+                    error: function(error) {
+                        alert('Error adding size');
+                    }
+                });
+            }
+           
+
+
+           
+
+        }
+
+        function deleteExpense(id){
+
+            deleteData = {
+                "id":id
+            }
+
+            $.ajax({
+                type: 'GET',
+                url: '{% url "main:delete-expense-type" %}', 
+                data: deleteData,
+                success: function(response) {
+                    
+                    $(`#tr_expense-${response.data.id}`).remove()
+
+
+                    messageToast(response.status, response.message)
+
+                
+                },
+                error: function(error) {
+                    //alert('Error adding size');
+                    messageToast(status, error)
+
+                }
+            });
+
+        }
+    
+
+    
+</script>
+
+
+
+
+{% endblock content %}

@@ -1,0 +1,258 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+<div id="main">
+    <header class="mb-3">
+        <a href="#" class="burger-btn d-block d-xl-none">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+
+<div class="page-heading">
+    <section class="section">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+
+                <h3 class="text m-1 " id="container_name">Konteyner raqami: {{ container.name }}   
+                    
+                    <i class="bi bi-trash-fill text-danger fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#dangerContainer"></i>
+                </h3> 
+             
+
+                <div class="card-text d-block flex-wrap ">
+                    <h6 class="text text-bold m-1" >Kelgan sanasi:  <span class="text m-1 " id="container_come_date"> {{ container.come_date|date:"d/m/Y" }}</></h6>
+                    <h6 class="text text-bold m-1" >Tugatilgan sanasi: <span class="text m-1 " id="container_come_date"> {{ container.end_date|date:"d/m/Y" }}</></h6> 
+                </div>
+                
+            </div>
+            <div class="card-body row">
+
+                <div class="col-md-6">
+
+                
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Umumiy harajatlar: </h6> <h6 class="text m-1">{{ general_expenses|floatformat:2}} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Mahsulotlarni summasi: </h6> <h6 class="text m-1">{{ all_product_sum|floatformat:2}} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Chiqimlar summasi: </h6> <h6 class="text m-1">{{ all_expense_sum|floatformat:2}} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Umumiy savdo: </h6> <h6 class="text m-1"> {{ total_sales_revenue_usd|floatformat:2 }} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Tushgan summa: </h6> <h6 class="text m-1"> {{ container_paid_amount|floatformat:2 }} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Foyda: </h6> <h6 class="text m-1">{{ profit|floatformat:2 }} $</h6>
+                    </div> 
+                   
+                </div>
+            <div class="col-md-6 ">
+                
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Kelgan mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_come_cube|floatformat:4}} (kuba )</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Sotilgan mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_sold_out|floatformat:4}} (kuba )</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Qoldiq mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_rest_cube|floatformat:4}} (kuba )</h6>
+                </div>
+
+                <span class="badge bg-primary m-1 " style="cursor: pointer;" data-bs-toggle="modal"
+                data-bs-target="#backToMain">Asosiy konteynerlarga qo'shish <i class="bi bi-arrow-bar-up fw-bold mx-1"></i></span>
+           
+            </div>
+
+               
+            </div>
+         </div>  
+
+    </section>
+
+
+    <div class="card-content">
+        <div class="card-body">
+            
+            <div class="list-group list-group-horizontal-sm mb-1 text-center" >
+
+                {% if request.path|slice:":32"  == "/archive-product-history-detail/" %}
+
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:archive-product-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-expense-container-detail' container.id %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-trade-history-detail' container.id %}" role="tab">Sotuv tarixi</a>
+
+
+                {% elif  request.path|slice:":32" == '/archive-expense-history-detail/' %}
+
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-product-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:archive-expense-container-detail' container.id %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-trade-history-detail' container.id %}" role="tab">Sotuv tarixi</a>
+
+                {% elif  request.path|slice:":30" == '/archive-trade-history-detail/' %}
+               
+                <a class="list-group-item list-group-item-action " href="{% url 'main:archive-product-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:archive-expense-container-detail' container.id %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:archive-trade-history-detail' container.id %}" role="tab">Sotuv tarixi</a>
+                {% else %}
+                {% endif %}
+            </div>
+
+        
+                   <!-- start 1 section -->
+                    <section class="section mt-3">
+                        <div class="card">
+                         
+                
+                            <div class="row" id="table-inverse">
+                                <div class="col-md-12">
+                                    <div class="card">
+                    
+                                        
+                                        <div class="card-content m-3">
+                                        
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered mb-0 " style="max-height: 40vh;">
+                
+                
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>O'lcham</th>
+                                                            <th>Dona</th>
+                                                            <th>Hajmi ( kuba )</th>
+                                                            <th>Narx ( $ | kuba )</th>
+                                                            <th>Qoldiq ( dona )</th>
+                                                            <th>Qoldiq ( kuba )</th>
+
+                                                
+                                                 
+                                                        </tr>
+                                                  
+                                                    </thead>
+                                                    <tbody>
+
+                                                        {% for product in container.container_products.all %}
+                
+                                                        <tr id="tr_product_info-{{  product.id }}">
+                                                            <td class="text-bold-500">#</td>
+                                                            <td id="td_product_size-{{ product.product_size.id }}">{{ product.product_size }} | {{ product.product_size.product_size_title }}</td>
+                                                            <td class="text-bold-500" id="td_product_qty-{{ product.id }}">{{ product.product_qty }}</td>
+                                                            <td class="text-bold-500" >{{ product.product_cube|floatformat:4  }}</td>
+                                                            <td class="text-bold-500" id="td_product_cost-{{ product.id }}">{{ product.come_cost }}</td>
+                                                            <td class="text-bold-500">{{ product.rest_qty }}</td>
+                                                            <td class="text-bold-500">{{ product.rest_cube|floatformat:4  }}</td>
+
+                                                  
+                                                        </tr>
+                                                        {% endfor %}
+                                                        
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                     
+                          
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                
+                
+                        </div>
+                    </section> 
+                    <!-- end 1 section -->
+
+               
+            </div>
+        </div>
+    </div>
+
+
+
+</div> 
+
+</div>
+
+
+<div class="modal fade text-left" id="backToMain" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel120" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    role="document">
+    <div class="modal-content">
+        <div class="modal-header ">
+            <h5 class="modal-title white" id="myModalLabel120"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-center" id="myModalLabel120">Ushbu konteynerni arxivdan chiqarmoqchimisiz ?</h5>
+            <p class="text-center">Arxivdan chiqarilgan barcha konteynerlar asosiy sahifaga qo'shiladi !</p>
+            <form action="{% url 'main:back-main-container' %}" method="post" >{% csrf_token %}
+                <input type="number" step="any" style="display: none;" name="container_id" value="{{container.id }}">
+                <div class="btns d-flex justify-content-center m-4">
+
+                    <button type="button" class="btn btn-light-secondary  m-3"
+                        data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block " >Yo'q</span>
+                    </button>
+                    <button type="submit" class="btn btn-primary text-white ms-1 m-3">
+                        Ha
+                    </button>
+                </div>
+            </form>
+        </div>
+     
+    </div>
+</div>
+</div>
+
+
+<!-- delete container -->
+<div class="modal fade text-left" id="dangerContainer" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel120" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    role="document">
+    <div class="modal-content">
+        <div class="modal-header bg-danger">
+            <h5 class="modal-title white" id="myModalLabel120"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-center" id="myModalLabel120">Ushbu konteynerni o'chirishni xoxlaysizmi ?</h5>
+            <p class="text-center">Ushbu konteyner o'chirilgan taqdirda unga bog'liq barcha ma'lumotlar o'chiriladi !</p>
+            <form action="{% url 'main:delete-container' %}" method="post" >{% csrf_token %}
+                <input type="number" step="any" style="display: none;" name="container_id" value="{{container.id }}">
+                <div class="btns d-flex justify-content-center m-4">
+
+                    <button type="button" class="btn btn-light-secondary  m-3"
+                        data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Yo'q</span>
+                    </button>
+                    <button type="submit" class="btn btn-danger ms-1 m-3">
+                        Ha
+                    </button>
+                </div>
+            </form>
+        </div>
+     
+    </div>
+</div>
+</div>
+
+
+
+
+{% endblock content %}

@@ -1,0 +1,434 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="static/assets/extensions/simple-datatables/style.css">
+
+
+
+        <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+
+
+            <div class="page-heading">
+
+                <section class="section"> 
+
+                    <div class="card">
+                        <div class=" card-header d-flex justify-content-between">
+
+                            <h3 class="text">Chiqimlar ro'yxati</h3> 
+
+                            
+                            
+                        </div>
+                        <div class="card-body">
+                            <div class="row d-flex justify-content-center">
+                                <div class="col-md-12 mt-3 ml-1">
+                                    <h6 class="text-danger" id="error_date" style="display: none; margin-left:160px;">2 ta sana kiritishni unutmang !</h6>
+                                    <h6 class="text-danger" id="error_date_greater" style="display: none; margin-left:160px;">Sana ma'lumotlari noto'g'ri kiritildi !</h6>
+                                </div>
+                                <div class="col-md-2 ">
+                                    <input type="date" class="form-control" id="start_date" name="start_date">
+                                    
+                                  
+                                </div>
+                                <div class="col-md-1">
+                                    <h6 class="mt-2">dan</h6>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="date" class="form-control " id="end_date" name="end_date">
+                                </div>
+                                <div class="col-md-1">
+                                    <h6 class="mt-2">gacha</h6>
+                                </div>
+                                <div class="col-md-3">
+                                    <button class="btn btn-info  w-50 text-white " type="button" id="filterBtn">Filtrlash</button>
+                                </div>
+                                
+                                
+                            </div>
+                           
+                            <!-- <table class="table table-striped  mt-2" id="table1"> -->
+                            <div class="table-responsive" style="margin-top: -48px;">
+
+                                <table class="table table-bordered  mb-0 mt-2 text-center" id="table1" style="max-height: 40vh; border-top:1px solid lightgray;">
+                
+                
+                                    <thead >
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Sana</th>
+                                            <th>Chiqim turi</th>
+                                            <th>Ishchilar</th>
+                                            <th>Summa</th>
+                                            <th>Taqsimoti</th>
+                                            <th>Valyuta kursi / so'm</th>
+                                            <th>Konteyner raqamlari</th>
+                                            <th></th>
+                                          
+                                        
+                                        </tr>
+                                       
+                                        </tr> 
+                                    </thead>
+                                    <tbody id="tbody_expense">
+                                        {% for expense in expenses %}
+
+                                        <tr id="tr_expense-{{ expense.id }}">
+                                            <td class="text-bold-500" style="border-top:1px solid lightgray;">{{ forloop.counter }}</td>
+                                            <td style="border-top:1px solid lightgray;">{{ expense.created_at|date:"d/m/Y" }}</td>
+                                            {% if expense.expense_type == None %}
+                                            <td style="border-top:1px solid lightgray;"></td>
+                                            {% else %}
+                                            <td style="border-top:1px solid lightgray;">{{expense.expense_type}}</td>
+                                            {% endif %}
+                                            {% if expense.workers == None %}
+                                            <td style="border-top:1px solid lightgray;"></td>
+                                            {% else %}
+                                            <td style="border-top:1px solid lightgray;">{{expense.workers}}</td>
+                                            {% endif %}
+
+                                            <td class="text-bold-500" style="border-top:1px solid lightgray;" id="expense_summa-{{ expense.id }}" data-summa="{{ expense.expense_summa }}">{{ expense.expense_summa|floatformat:2 }}   {% if expense.currency == 1 %}${% else %}so'm{% endif %}</td>
+                                            <td class="text-bold-500" style="border-top:1px solid lightgray;">{{ expense.only_sum|floatformat:2 }}   {% if expense.currency == 1 %}${% else %}so'm{% endif %}</td>
+                                            
+                                            <td class="text-bold-500" style="border-top:1px solid lightgray;" id="exchange_rate-{{ expense.id }}">{{ expense.exchange_rate }}</td>
+                                            <td class="text-bold-500 d-block" style="border-top:1px solid lightgray;">
+                                                {% for container in expense.containers.all %}
+                                                <p>{{ container.name }}</p>
+                                                {% endfor %}
+                                            </td>
+                                            <td style="border-top:1px solid lightgray;">
+                                                <i class="bi bi-pencil-square text-warning fs-5 cursor-pointer m-1" role="button" data-bs-toggle="modal" data-bs-target="#border-less" onclick="getExpenseInfo('{{ expense.id }}')"></i>
+                                                <i class="bi bi-trash-fill text-danger fs-5 cursor-pointer m-1" role="button" data-bs-toggle="modal" data-bs-target="#default" onclick="getExpenseId('{{ expense.id }}')"></i>
+                                            </td>
+                                            
+                                            
+                                        </tr>
+                                        {% endfor %}
+                                        
+                                    </tbody>
+                                </table>
+                                </div>
+
+
+                            <!-- </table> -->
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+
+
+       <!-- modals -->
+<div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Chiqim tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+           <form action="#" method="post" id="editExpenseForm">{% csrf_token %}
+                <div class="form-group">
+                    <label for="basicInput">Valyuta kursi</label>
+                    <input type="text" class="form-control mt-2" id="modal_exchange_rate" placeholder="0" name="exchange_rate" required>
+                    <input type="text" class="form-control mt-2" id="modal_expense_id" name="expense_id" style="display: none;">
+                    
+                    
+                </div>
+                <h6 class="text-danger" id="error_exchange_rate" style="display: none;">Maydon bo'sh bo'lishi mumkin emas !</h6>
+
+                <div class="form-group">
+                    <label for="basicInput">Summa</label>
+                    <input type="text" class="form-control mt-2" id="modal_expense_summa" placeholder="summa"  name="expense_summa" required >
+                </div>
+                <h6 class="text-danger" id="error_summa" style="display: none;">Maydon bo'sh bo'lishi mumkin emas !</h6>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Orqaga</span>
+                    </button>
+                    <button type="submit" class="btn btn-warning ms-1 text-white" id="editExpenseBtn">
+                        Tahrirlash
+                    </button>
+                </div>
+           </form>
+        </div>
+    </div>
+</div>
+</div>
+<!-- endmodals --> 
+
+<!-- modals 2 -->
+<div class="modal fade text-left" id="default" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header bg-danger d-flex justify-content-end">
+            <button type="button" class="close rounded-pill " data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-dark" id="myModalLabel1">Ushbu chiqim ma'lumotlari o'chirilsinmi ?</h5>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" id="expense_id" name="expense_id" style="display:none ;">
+                </div>
+               
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn" data-bs-dismiss="modal">
+                <i class="bx bx-x d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Yo'q</span>
+            </button>
+            <button type="button" class="btn btn-danger ms-1" id="confirmBtn" data-bs-dismiss="modal">
+                <i class="bx bx-check d-block d-sm-none"></i>
+                <span class="d-none d-sm-block text-white">Ha</span>
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- endmodals 2 -->
+
+
+<script>
+    
+    
+
+
+
+    $(document).ready(function() {
+    
+        $('#filterBtn').click(function(event) {
+            let startDate = $('#start_date').val()
+            let endDate = $('#end_date').val()
+            
+    
+            if (!endDate && !startDate){
+                $('#error_date').show()
+            }
+            if(new Date(startDate) > new Date(endDate) ){
+                $('#error_date_greater').show()
+            }
+            else{
+                $('#error_date_greater').hide()
+                $('#error_date').hide()
+    
+                getData = {
+                    startDate:startDate,
+                    endDate:endDate,
+                }
+    
+    
+            $.ajax({
+                url: '{% url "main:filter-expenses" %}',  
+                type: 'GET',
+                data: getData,
+                success: function(response) {
+    
+                    console.log(response.data)
+    
+                    if (response.status === 200) {
+    
+                        let expenses = response.data;
+                        let expenseHtml = '';
+                        let counter = 0
+
+                        expenses.forEach(e => {
+                            let container_sum = e.container_sum
+                            let expense_summa = e.expense_summa
+
+
+                            expenseHtml += `
+                            <tr id="tr_expense-${e.expense_id}">
+                                <td class="text-bold-500" style="border-top:1px solid lightgray;">${counter += 1}</td>
+                                <td style="border-top:1px solid lightgray;">${e.created_at}</td>
+                                <td style="border-top:1px solid lightgray;">${e.expense_type || ''}</td>
+                                <td style="border-top:1px solid lightgray;">${e.workers || ''}</td>
+                                <td class="text-bold-500" style="border-top:1px solid lightgray;" id="expense_summa-${e.expense_id}" data-summa="${e.expense_summa}">${parseFloat(e.expense_summa).toFixed(2)} ${e.currency == 1 ? '$' : "so'm"}</td>
+                                <td class="text-bold-500" style="border-top:1px solid lightgray;">${parseFloat(container_sum).toFixed(2)} ${e.currency == 1 ? '$' : "so'm"}</td>
+                                <td class="text-bold-500" style="border-top:1px solid lightgray;" id="exchange_rate-${e.expense_id}">${e.exchange_rate}</td>
+                                <td class="text-bold-500 d-block" style="border-top:1px solid lightgray;">
+                                    ${e.containers.map(container => `<p>${container.name}</p>`).join('')}
+                                </td>
+                                <td style="border-top:1px solid lightgray;">
+                                    <i class="bi bi-pencil-square text-warning fs-5 cursor-pointer m-1" role="button" data-bs-toggle="modal" data-bs-target="#border-less" onclick="getExpenseInfo('${e.expense_id}')"></i>
+                                    <i class="bi bi-trash-fill text-danger fs-5 cursor-pointer m-1" role="button" data-bs-toggle="modal" data-bs-target="#default" onclick="getExpenseId('${e.expense_id}')"></i>
+                                </td>
+                            </tr>`;
+                            
+                            $('#tbody_expense').html(expenseHtml);
+                            
+                        })
+                        
+
+    
+                        //$('#accordionFlushExample').html(ordersHtml);
+                    } else {
+                        console.log('Error:', response.message);
+                    }
+    
+    
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+    
+                    messageToast(status, error)
+    
+                }
+            });
+    
+    
+    
+            }
+    
+    
+         })
+    
+    
+        $('#start_date').change(function(event) { 
+            let startDate = $(this).val()
+            let endDate = $('#end_date').val()
+    
+            if (endDate && startDate){
+                $('#error_date').hide()
+            }else{
+                $('#error_date').show()
+            }       
+    
+        })
+    
+        $('#end_date').change(function(event) { 
+            let startDate = $('#start_date').val()
+            let endDate = $(this).val()
+    
+            if (endDate && startDate){
+                $('#error_date').hide()
+            }else{
+                $('#error_date').show()
+            }      
+    
+        })
+    
+    })
+    
+    
+    
+
+    function getExpenseInfo(id){
+        $('#modal_exchange_rate').val($(`#exchange_rate-${id}`).text())
+        $('#modal_expense_summa').val($(`#expense_summa-${id}`).attr('data-summa'))
+        $(`#modal_expense_id`).val(id)
+
+    }
+
+    
+    $(document).ready(function() {
+        
+        $('#editExpenseBtn').click(function(event) {
+            event.preventDefault()
+
+            isEmpty = false
+
+            if ($('#modal_exchange_rate').val().trim() === '') {
+                isEmpty = true;
+                $('#error_exchange_rate').show()
+                return false; 
+            }else{
+                isEmpty = false;
+                $('#error_exchange_rate').hide()
+            }
+
+            if ($('#modal_expense_summa').val().trim() === '') {
+                isEmpty = true;
+                $('#error_summa').show()
+                return false; 
+            }else{
+                isEmpty = false;
+                $('#error_summa').hide()
+            }
+            
+            if(!isEmpty){
+                $('#error_summa').hide()
+                $('#error_exchange_rate').hide()
+
+                let editForm = $(`#editExpenseForm`).serialize()
+
+                $.ajax({
+                    url: '{% url "main:edit-expense" %}',  
+                    type: 'POST',
+                    data: editForm,
+                    success: function(response) {
+                        location.reload(    )
+                        messageToast(response.status, response.message)
+                        
+    
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Error updating data: ' + error);
+                        messageToast(status, error)
+    
+                    }
+                });
+
+            }
+
+        })
+    })
+
+    function getExpenseId(id){
+        $('#expense_id').val(id)
+    }
+    $(document).ready(function() {
+        
+        $('#confirmBtn').click(function(event) {
+            let expense_id = $('#expense_id').val()
+
+            $.ajax({
+                url: '{% url "main:edit-expense" %}',  
+                type: 'GET',
+                data: {expense_id:expense_id},
+                success: function(response) {
+
+                    $(`#tr_expense-${expense_id}`).remove()
+                    
+                    messageToast(response.status, response.message)
+                    
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error)
+
+                }
+            });
+
+
+        })
+    })
+
+
+
+
+
+</script>
+
+
+<script src="static/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
+<script src="static/assets/static/js/pages/simple-datatables.js"></script>
+
+{% endblock %}

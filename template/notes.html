@@ -1,0 +1,383 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+
+
+        <div id="main">
+
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            <div class="page-heading">
+
+                <section class="section"> 
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text">Eslatmalar</h3> 
+                            <div class="add-clients-btn d-flex justify-content-end" style="margin-top: -45px;">
+                                <a href="#" class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#border-less">Qo'shish +</a>
+                            </div> 
+                            
+                        </div>
+                        <div class="card-body">
+                    
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Text</th>
+                                            <th>Sana</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for note in notes %}
+                                        <tr id="tr_note-{{ note.id }}" class="{% if note.is_active %} fw-bold {% else %} text {% endif %}">
+                                            <td>{{ forloop.counter }}</td>
+                                            <td id="td_text-{{ note.id }}" class="text w-50">{{ note.text }}</td>
+                                            <td id="td_date-{{ note.id }}">{{ note.date_of_notice|date:'d/m/Y' }}</td>
+                                            <td class="text-bold-500 text-center">
+                                                <i class="bi bi-pencil-square text-warning fs-5 cursor-pointer m-1" role="button" data-bs-toggle="modal" data-bs-target="#default" onclick="getNoteId('{{ note.id }}')"></i>
+                                                <i class="bi bi-trash-fill text-danger fs-5 cursor-pointer m-1" role="button" onclick="deleteNote('{{ note.id }}')"></i>
+                                            </td>
+                                            <td class="text-center text-primary">
+                                                {% if note.is_active %}
+                                                <i id="note_active-{{ note.id }}" class="bi bi-bookmark-fill" role="button" onclick="toggleNoteStatus('{{ note.id }}')"></i>
+                                                <i id="note_inactive-{{ note.id }}" class="bi bi-bookmark" role="button" onclick="toggleNoteStatus('{{ note.id }}')" style="display: none;"></i>
+                                                {% else %}
+                                                <i id="note_active-{{ note.id }}" class="bi bi-bookmark-fill" role="button" onclick="toggleNoteStatus('{{ note.id }}')" style="display: none;"></i>
+                                                <i id="note_inactive-{{ note.id }}" class="bi bi-bookmark" role="button" onclick="toggleNoteStatus('{{ note.id }}')"></i>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                
+                            </div>
+
+
+                            
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+
+
+
+<div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+        role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Eslatma qo'shish</h5>
+                    <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                        aria-label="Close">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="createNoteForm" method="post" >
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="date_of_notice" class="form-label">Sana</label>
+                            <input type="date" class="form-control" id="date_of_notice" name="date">
+                        </div>
+                        <p class="date_error_msg text-start text-danger" style="display: none;">
+                            Sanani kiritilmadi !
+                        </p>
+                        <div class="form-group mb-3">
+                            <label for="noteText" class="form-label">Eslatma matni</label>
+                            <textarea class="form-control" id="noteText" rows="3" name="text" ></textarea>
+                        </div>
+                        <p class="text_error_msg text-start text-danger" style="display: none;">
+                            Maydon bo'sh bo'lishi mumkin emas !
+                        </p>
+                        
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Orqaga</span>
+                    </button>
+                    <button type="submit" class="btn btn-primary ms-1" id="noteSubmitBtn">
+                        Tasdiqlash
+                    </button>
+                </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 2 model  -->
+
+<div class="modal fade text-left" id="default" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">To'lov ma'lumotlarini tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editNoteForm" method="post" action="{% url 'main:edit-note' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="modal_date_of_notice" class="form-label">Sana</label>
+                    <input type="date" class="form-control" id="modal_date_of_notice" name="date">
+                    <input type="number" step="any" class="form-control" id="note_id" name="note_id" style="display: none;">
+                </div>
+                <p class="modal_date_error_msg text-start text-danger" style="display: none;">
+                    Sanani kiritilmadi !
+                </p>
+                <div class="form-group mb-3">
+                    <label for="modal_noteText" class="form-label">Eslatma matni</label>
+                    <textarea class="form-control" id="modal_noteText" rows="3" name="text" ></textarea>
+                </div>
+                <p class="modal_text_error_msg text-start text-danger" style="display: none;">
+                    Maydon bo'sh bo'lishi mumkin emas !
+                </p>
+                
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                <i class="bx bx-x d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Orqaga</span>
+            </button>
+            <button type="submit" class="btn btn-primary ms-1" id="editNoteBtn">
+                Tasdiqlash
+            </button>
+        </div>
+
+    </form>
+</div>
+
+    </div>
+</div>
+</div>
+
+    <!-- 2 endmodel  -->
+
+    <script>
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+        
+
+
+        $(document).ready(function() {
+            
+            $('#noteSubmitBtn').click(function(event) {
+
+                let text = $('#noteText');
+                let date = $('#date_of_notice');
+
+                let valid = true;
+               
+                if (date.val() === "") {
+                    valid = false;
+                    $('.date_error_msg').show()
+                }else{
+                    valid = true
+                    $('.date_error_msg').hide()
+                }
+                if (text.val().trim() === '') {
+                    valid = false;
+                    $('.text_error_msg').show()
+                  
+                }else{
+                    valid = true
+                    $('.text_error_msg').hide()
+                }
+
+                if (valid) {
+                    event.preventDefault();
+                    
+                    formData = $('#createNoteForm').serialize()
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "main:create-note" %}',
+                        data: formData,
+                        success: function(response) {
+                           location.reload()
+
+                            messageToast(response.status, response.message)
+
+                        },
+                        error: function(error) {
+                            alert('Error submitting data');
+                            messageToast(status, error)
+
+                            // Handle error response
+                        }
+                    });
+
+
+                }else{
+                    return false
+                }
+
+
+            })
+        })
+
+
+        function getNoteId(id){
+            let date = $(`#td_date-${id}`).text()
+            let text = $(`#td_text-${id}`).text()
+            
+            let note_id = $(`#note_id`).val(id)
+
+            let dateParts = date.split('/');
+            let month = dateParts[0];
+            let day = dateParts[1];
+            let year = dateParts[2];
+
+            $('#modal_noteText').val(text)
+            $('#modal_date_of_notice').val(`${year}-${month}-${day}`)
+
+        }
+
+        
+
+        $(document).ready(function() {
+            // Handle form submission with AJAX
+            $('#editNoteBtn').click(function(event) {
+                
+                let text = $('#modal_date_of_notice');
+                let date = $('#modal_noteText');
+
+                let valid = true;
+               
+                if (date.val() === "") {
+                    valid = false;
+                    $('.modal_date_error_msg').show()
+                }else{
+                    valid = true
+                    $('.modal_date_error_msg').hide()
+                }
+                if (text.val().trim() === '') {
+                    valid = false;
+                    $('.modal_text_error_msg').show()
+                  
+                }else{
+                    valid = true
+                    $('.modal_text_error_msg').hide()
+                }
+
+
+
+                if (valid) {
+
+                    formData = $('#editNoteForm').serialize()
+      
+                $.ajax({
+                    url: '{% url "main:edit-note" %}',  // Replace with your actual URL
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+
+                        location.reload()
+
+                        messageToast(response.status, response.message)
+
+                    },
+                    error: function(error) {
+                        // Handle error
+                        console.log('Error:', error);
+                        messageToast(status, error)
+                        
+                    }
+                });
+            }
+
+            })
+        })
+
+        function deleteNote(id){
+
+            $.ajax({
+                url: '{% url "main:delete-note" %}',  
+                type: 'GET',
+                data: {"id":id},
+                success: function(response) {
+    
+                    $(`#tr_note-${ id }`).remove()
+    
+                    messageToast(response.status, response.message)
+    
+    
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error)
+    
+                }
+            });
+
+        }
+
+        function toggleNoteStatus(id) {
+            let activeIcon = $(`#note_active-${id}`);
+            let inactiveIcon = $(`#note_inactive-${id}`);
+            let row = $(`#tr_note-${id}`);
+            let status = row.hasClass('fw-bold') ? 'disactive' : 'active';
+        
+            $.ajax({
+                url: '{% url "main:edit-note-status" %}',  
+                type: 'GET',
+                data: {"id": id, "status": status},
+                success: function(response) {
+                    if (status === 'active') {
+                        row.removeClass('text').addClass('fw-bold');
+                        activeIcon.show();
+                        inactiveIcon.hide();
+                    } else {
+                        row.removeClass('fw-bold').addClass('text');
+                        activeIcon.hide();
+                        inactiveIcon.show();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error);
+                }
+            });
+        }
+        
+
+
+
+    </script>
+
+
+
+
+{% endblock content %}

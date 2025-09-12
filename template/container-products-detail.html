@@ -1,0 +1,901 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+<div id="main">
+    <header class="mb-3">
+        <a href="#" class="burger-btn d-block d-xl-none">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+
+<div class="page-heading">
+    <section class="section">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h3 class="text m-1 " id="container_name">Konteyner raqami: {{ container.name }}   
+                    <i class="bi bi-pencil-square text-warning fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#border-less"></i>
+                    <i class="bi bi-trash-fill text-danger fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#dangerContainer"></i>
+                </h3> 
+             
+
+                <div class="card-text d-flex flex-wrap mt-2 ">
+                    <h6 class="text text-bold m-1" >Kelgan sanasi: </h6> <h6 class="text m-1 " id="container_come_date"> {{ container.come_date|date:"d/m/Y" }}</h6>
+
+                </div>
+ 
+                
+            </div>
+
+
+            <div class="card-body row">
+
+            <div class="col-md-6">
+
+                
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Umumiy harajatlar: </h6> <h6 class="text m-1">{{ general_expenses|floatformat:2}} $</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Mahsulotlarni summasi: </h6> <h6 class="text m-1">{{ all_product_sum|floatformat:2}} $</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Chiqimlar summasi: </h6> <h6 class="text m-1">{{ all_expense_sum|floatformat:2}} $</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Umumiy savdo: </h6> <h6 class="text m-1"> {{ total_sales_revenue_usd|floatformat:2 }} $</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Tushgan summa: </h6> <h6 class="text m-1"> {{ container_paid_amount|floatformat:2 }} $</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Foyda: </h6> <h6 class="text m-1">{{ profit|floatformat:2 }} $</h6>
+                </div> 
+               
+            </div>
+            <div class="col-md-6">
+                
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Kelgan mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_come_cube|floatformat:4}} (kuba )</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Sotilgan mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_sold_out|floatformat:4}} (kuba )</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Qoldiq mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_rest_cube|floatformat:4}} (kuba )</h6>
+                </div>
+                <br>
+                <h6 class="text text-bold m-1 supplier_info " >Ta'minotchi: {{ container.supplier_container.name }}</h6>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Ta'minotchidan qolgan qarz: </h6> <h6 class="text m-1">{{ container.difference_summa|floatformat:2}}</h6>
+                </div>
+
+
+                <span class="badge bg-primary m-1 " style="cursor: pointer;" data-bs-toggle="modal"
+                data-bs-target="#backToArchive">Arxivlarga o'tkazish   <i class="bi bi-archive mx-1"></i></span>
+
+            </div>
+
+
+               
+            </div>
+         </div>  
+
+    </section>
+
+
+    <div class="card-content">
+        <div class="card-body">
+            
+            <div class="list-group list-group-horizontal-sm mb-1 text-center" >
+
+
+                {% if request.path|slice:":27"  == "/container-products-detail/" %}
+
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:container-products-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-detail' container.id %}" role="tab">Sotuv</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-expence-detail' container.id %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-history' container.id %}" role="tab">Sotuv tarixi</a>
+
+
+                {% elif  request.path|slice:":24" == '/container-trade-detail/' %}
+
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-products-detail' container.id  %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:container-trade-detail' container.id   %}" role="tab">Sotuv</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-expence-detail' container.id  %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-history' container.id %}" role="tab">Sotuv tarixi</a>
+
+               
+                {% elif  request.path|slice:":27" == '/container-expence-detail' %}
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-products-detail' container.id   %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-detail'  container.id  %}" role="tab">Sotuv</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:container-expence-detail' container.id  %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-history' container.id %}" role="tab">Sotuv tarixi</a>
+
+
+                {% elif  request.path|slice:":24" == '/container-trade-history' %}
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-products-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-detail' container.id  %} " role="tab">Sotuv</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-expence-detail' container.id  %} " role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:container-trade-history' container.id %}" role="tab">Sotuv tarixi</a>
+                {% else %}
+                {% endif %}
+            </div>
+
+        
+                   <!-- start 1 section -->
+                    <section class="section mt-3">
+                        <div class="card">
+                         
+                
+                            <div class="row" id="table-inverse">
+                                <div class="col-md-12">
+                                    <div class="card">
+                    
+                                        
+                                        <div class="card-content m-3">
+                                        
+                                            <div class="table">
+                                                
+                                                <form action="{% url 'main:container-products-detail' container.id %}" method="post" class="d-flex justify-content-center mt-2">
+                                                    {%  csrf_token %}
+                                                <div class="row w-100" >
+                                                    
+                                                        <div class="col-md-4">
+            
+                                                            <div class="form-group">
+                                                                <select class="choices form-select searchable" name="select_size" required>
+                                                                    <option value="0">O'lcham tanlang</option>
+                                                                    {% for ps in product_sizes %}
+                                                                    <option value="{{ ps.id }}">{{ ps.product_size_x }} x {{ ps.product_size_y }} x {{ ps.product_size_z }} | {{ ps.product_size_title }}</option>
+                                                     
+                                                                    {% endfor %}
+                                                                    
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" class="form-control " id="basicInput" placeholder="Soni" name="product_qty" required>
+                                                            </div>
+            
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" class="form-control" id="basicInput" placeholder="Kelish narxi" name="come_cost" required>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                       
+                                                        <div class="col-md-2" >
+                                                        
+                                                                <button class="badge bg-primary border-0 " type="submit"><i class="bi bi-plus-circle-fill fs-4"></i></button>
+                                                            
+                                                            </div>
+                                                        </div>
+                                                        <span class="badge bg-info  text-center text-white " data-bs-toggle="modal"
+                                                        data-bs-target="#addCut" role="button" style="width: auto; height:35px;"><p class="mt-1 text">Kesilganlarni qo'shish +</p></span>
+                                                </form> 
+                                               
+            
+            
+                                                <table class="table table-bordered mb-0 " style="max-height: 40vh;">
+                
+                
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>O'lcham</th>
+                                                            <th>Dona</th>
+                                                            <th>Hajmi (kuba )</th>
+                                                            <th>Narx ( $ |kuba yoki soni )</th>
+                                                            <th>Qoldiq ( dona )</th>
+                                                            <th>Qoldiq (kuba )</th>
+
+                                                            <th> </th>
+                                                            <th> </th>
+                                                 
+                                                        </tr>
+                                                  
+                                                    </thead>
+                                                    <tbody>
+
+                                                        {% for product in products %}
+                
+                                                        <tr id="tr_product_info-{{  product.id }}"
+                                                        
+                                                        {% if product.is_cube == True %}
+                                                        style="font-weight:bold;"
+                                                        {% else %}
+                                                        style="font-weight:bold; background-color: #82daff;"
+                                                        {% endif %}
+                                                        >
+                                                            <td class="text-bold-500">#</td>
+                                                            <td id="td_product_size-{{ product.product_size.id }}">{{ product.product_size }} | {{ product.product_size.product_size_title }} {% if product.is_cut %} (kesilgan) {% else %}{% endif %}</td>
+                                                            <td class="text-bold-500" id="td_product_qty-{{ product.id }}">{{ product.product_qty }}</td>
+                                                            <td class="text-bold-500" >{{ product.product_cube|floatformat:4 }}</td>
+                                                            <td class="text-bold-500" id="td_product_cost-{{ product.id }}">{{ product.come_cost }}</td>
+                                                            <td class="text-bold-500">{{ product.rest_qty }}</td>
+                                                            <td class="text-bold-500">{{ product.rest_cube|floatformat:4 }}</td>
+
+                                                            {% if product.is_cut %}
+                                                            
+                                                            <td><i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                                                data-bs-target="#editCut" onclick="getCutId('{{ product.id }}', '{{ product.product_size.id }}', '{{ product.rest_qty }}' )"></i>
+                                                            </td>
+                                                            {% else %}
+
+                                                            <td><i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                                                data-bs-target="#default" onclick="getAndPut('{{ product.id }}', '{{ product.product_size.id }}' )"></i>
+                                                            </td>
+                                                            {% endif  %}
+
+                                                            <td><i class="bi bi-trash-fill text-danger fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                                                data-bs-target="#danger" onclick="getProduct('{{ product.id }}')"></i></td>
+
+                                                            {% if product.is_cut %}
+                                                            {% else %}
+                                                            <td><i class="bi bi-dash-circle-dotted text-primary fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                                                data-bs-target="#inlineForm" onclick="getCutProduct('{{ product.id }}')"></i>
+                                                            </td>
+                                                            {% endif %}
+                                                  
+                                                        </tr>
+
+                                                        {% endfor %}
+                                                        
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                     
+                          
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                
+                
+                        </div>
+                    </section> 
+                    <!-- end 1 section -->
+
+               
+            </div>
+        </div>
+    </div>
+
+
+
+</div> 
+
+</div>
+
+
+    <!--Danger theme Modal -->
+    <div class="modal fade text-left" id="dangerContainer" tabindex="-1" role="dialog"
+    aria-labelledby="myModalLabel120" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+        role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title white" id="myModalLabel120"></h5>
+                <button type="button" class="close" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 class="modal-title text-center" id="myModalLabel120">Ushbu konteynerni o'chirishni xoxlaysizmi ?</h5>
+                <p class="text-center">Ushbu konteyner o'chirilgan taqdirda unga bog'liq barcha ma'lumotlar o'chiriladi !</p>
+                <form action="{% url 'main:delete-container' %}" method="post" >{% csrf_token %}
+                    <input type="number" step="any" style="display: none;" name="container_id" value="{{container.id }}">
+                    <div class="btns d-flex justify-content-center m-4">
+    
+                        <button type="button" class="btn btn-light-secondary  m-3"
+                            data-bs-dismiss="modal">
+                            <i class="bx bx-x d-block d-sm-none"></i>
+                            <span class="d-none d-sm-block">Yo'q</span>
+                        </button>
+                        <button type="submit" class="btn btn-danger ms-1 m-3">
+                            Ha
+                        </button>
+                    </div>
+                </form>
+            </div>
+         
+        </div>
+    </div>
+</div>
+
+    <div class="modal fade text-left" id="danger" tabindex="-1" role="dialog"
+    aria-labelledby="myModalLabel120" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+        role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title white" id="myModalLabel120"></h5>
+                <button type="button" class="close" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 class="modal-title text-center" id="myModalLabel120">Ushbu mahsulotni o'chirishni xoxlaysizmi ?</h5>
+                <form action="#" method="post" id="deleteForm">{% csrf_token %}
+                    <input type="number" step="any" style="display: none;" id="putProductId" name="product_id">
+                </form>
+                <div class="btns d-flex justify-content-center m-4">
+
+                    <button type="button" class="btn btn-light-secondary  m-3"
+                        data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Yo'q</span>
+                    </button>
+                    <button type="button" class="btn btn-danger ms-1 m-3"
+                        data-bs-dismiss="modal" id="deleteConfirmProduct">
+                        <i class="bx bx-check d-block d-sm-none" ></i>
+                        <span class="d-none d-sm-block">Ha</span>
+                    </button>
+                </div>
+            </div>
+         
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- modals 1 -->
+
+<div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Konteynerni tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="" id="editContainerName" method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+
+                    <select id="client_select" class="searchable" required name="supplier">
+                        <option value="0" selected>Ta'minotchini tanlang</option>
+                        {% for supplier in suppliers %}
+                        {% if  supplier.id == container.supplier_container.id %}
+                        <option value="{{ supplier.id }}" selected>{{ supplier.name }}</option>
+                        {% else %}
+                        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                        {% endif %}
+                        
+                        {% endfor %}
+                    </select>
+
+                    <label for="basicInput" class="m-1">Raqami</label>
+                    <input type="text" class="form-control" id="basicInput" name="name" value="{{ container.name }}" required>
+                    <label for="basicInputDate1" class="m-1">Sana</label>
+                    
+                    <input type="date" class="form-control" id="basicInputDate1"  name="date" value="{{ container.come_date|date:'Y-m-d' }}" required>
+                    <input type="text" value="{{ container.id }}" name="container_id" style="display: none;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Orqaga</span>
+                    </button>
+                    <button type="button" id="editContainerBtn" class="btn btn-primary ms-1" data-bs-toggle="modal" data-bs-target="#border-less">
+                        <i class="bx bx-check d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">O'zgartirish</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+<!-- end modals 1 -->
+
+<!-- modals 2 -->
+<div class="modal fade text-left" id="default" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">Mahsulotni tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="#" method="post" class="d-flex justify-content-around mt-2" id="editProductInfo">
+                {%  csrf_token %}
+            <div class="row" >
+                
+                    <div class="col-md-4">
+
+                        <div class="form-group">
+                            <label for="" class="">O'lcham</label>
+
+                            <select class="choices form-select mt-2" name="select_size" required >
+                                <option value="0">O'lcham tanlang</option>
+                                {% for ps in product_sizes %}
+                                <option value="{{ ps.id }}" id="option_product_size-{{ ps.id }}" >{{ ps.product_size_x }} x {{ ps.product_size_y }} x {{ ps.product_size_z }}</option>
+                 
+                                {% endfor %}
+                                
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="basicInput">Soni</label>
+
+                            <input type="number" step="any" class="form-control  mt-2" id="modal_product_qty" placeholder="Soni" name="product_qty" required>
+                        </div>
+
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="basicInput2">Kelish narxi</label>
+
+                            <input type="number" step="any" class="form-control mt-2" id="modal_product_cost" placeholder="Kelish narxi" name="come_cost" required>
+                            <input type="number" step="any" class="form-control mt-2" id="modal_product_id"  name="product_id" style="display: none;">
+                        </div>
+                        
+                    </div>
+                   
+                </div>
+            </form> 
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn" data-bs-dismiss="modal">
+                <i class="bx bx-x d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Orqaga</span>
+            </button>
+            <button type="button" class="btn btn-primary ms-1" data-bs-dismiss="modal" id="updateProductBtn">
+                <i class="bx bx-check d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Saqlash</span>
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- endmodals 2 -->
+
+<!-- modals 3 -->
+
+            <div class="modal fade text-left" id="inlineForm" tabindex="-1" role="dialog"
+                    aria-labelledby="myModalLabel33" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+                        role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="myModalLabel33">Qoldiqdan ayirish</h4>
+                                <button type="button" class="close" data-bs-dismiss="modal"
+                                    aria-label="Close">
+                                    <i data-feather="x"></i>
+                                </button>
+                            </div>
+                            <form action="#" id="cutProductForm" method="post"> {% csrf_token %}
+                                <div class="modal-body">
+                                    <label for="email">Soni</label>
+                                    <div class="form-group">
+                                        <input id="cut_qty" type="number" step="any" placeholder="Soni" class="form-control mt-2" name="cut_qty" required >
+                                        <input id="cutProductId" type="number" step="any" class="form-control mt-2" style="display: none;" name="product_id">
+                                            
+                                    </div>
+                                    
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light-secondary"
+                                        data-bs-dismiss="modal">
+                                        <i class="bx bx-x d-block d-sm-none"></i>
+                                        <span class="d-none d-sm-block">Orqaga</span>
+                                    </button>
+                                    <button type="submit" class="btn btn-primary ms-1" id="cutProductBtn">
+                                        Tasdiqlash
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    </div>
+
+
+
+<!-- endmodals 3 -->
+
+
+<div class="modal fade text-left" id="backToArchive" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel120" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    role="document">
+    <div class="modal-content">
+        <div class="modal-header ">
+            <h5 class="modal-title white" id="myModalLabel120"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-center" id="myModalLabel120">Ushbu konteynerni arxivdan chiqarmoqchimisiz ?</h5>
+            <p class="text-center">Arxivdan chiqarilgan barcha konteynerlar asosiy sahifaga qo'shiladi !</p>
+            <form action="{% url 'main:back-archive-container' %}" method="post" >{% csrf_token %}
+                <input type="number" step="any" style="display: none;" name="container_id" value="{{container.id }}">
+                <div class="btns d-flex justify-content-center m-4">
+
+                    <button type="button" class="btn btn-light-secondary  m-3"
+                        data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block " >Yo'q</span>
+                    </button>
+                    <button type="submit" class="btn btn-primary text-white ms-1 m-3">
+                        Ha
+                    </button>
+                </div>
+            </form>
+        </div>
+     
+    </div>
+</div>
+</div>
+
+
+
+<div class="modal modal-lg fade text-left" id="addCut" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">Kesilganlarni qo'shish</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="{% url 'main:add_cut_product' %}" method="post" class="d-flex justify-content-around mt-2" id="addCutForm">
+                {%  csrf_token %}
+            <div class="row w-100">
+                
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+                            <label for="" class="">O'lcham</label>
+
+                            <select class="choices form-select mt-2 searchable" name="select_size" required >
+                                <option value="0">O'lcham tanlang</option>
+                                {% for ps in product_sizes %}
+                                <option value="{{ ps.id }}" id="option_product_size-{{ ps.id }}" >{{ ps.product_size_name }}</option>
+                 
+                                {% endfor %}
+                                
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="basicInput">Soni</label>
+
+                            <input type="number" step="any" class="form-control  mt-2" id="add_modal_product_qty" placeholder="Soni" name="product_qty" required>
+                            <input type="number" step="any" class="form-control  mt-2" name="container_id" value="{{ container.id }}" style="display: none;">
+                        </div>
+
+                    </div>
+                   
+                   
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal">
+                    <i class="bx bx-x d-block d-sm-none"></i>
+                    <span class="d-none d-sm-block">Orqaga</span>
+                </button>
+                <button type="submit" class="btn btn-primary ms-1"  id="addCutBtn">
+                    <i class="bx bx-check d-block d-sm-none"></i>
+                    <span class="d-none d-sm-block">Saqlash</span>
+                </button>
+            </div>
+        </form> 
+    </div>
+</div>
+</div>
+
+<div class="modal fade text-left" id="editCut" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">Tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="{% url 'main:edit_cut_product' %}" method="post" class="d-flex justify-content-around mt-2" >
+                {%  csrf_token %}
+            <div class="row" >
+                
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+                            <label for="" class="">O'lcham</label>
+
+                            <select class="choices form-select mt-2" name="select_size" required >
+                                <option value="0">O'lcham tanlang</option>
+                                {% for ps in product_sizes %}
+                                <option value="{{ ps.id }}" id="cut_option_product_size-{{ ps.id }}" >{{ ps.product_size_x }} x {{ ps.product_size_y }} x {{ ps.product_size_z }}</option>
+                 
+                                {% endfor %}
+                                
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="basicInput">Soni</label>
+
+                            <input type="number" step="any" class="form-control  mt-2" id="edit_modal_product_qty" placeholder="Soni" name="product_qty" required>
+                            <input type="number" step="any" class="form-control  mt-2" name="container_id" value="{{ container.id }}" style="display: none;">
+                            <input type="number" step="any" class="form-control  mt-2" name="product_id" id="cut_product_id"  style="display: none;">
+                        </div>
+
+                    </div>
+                   
+                   
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-bs-dismiss="modal">
+                    <i class="bx bx-x d-block d-sm-none"></i>
+                    <span class="d-none d-sm-block">Orqaga</span>
+                </button>
+                <button type="submit" class="btn btn-primary ms-1"  id="addCutBtn">
+                    <i class="bx bx-check d-block d-sm-none"></i>
+                    <span class="d-none d-sm-block">Saqlash</span>
+                </button>
+            </div>
+        </form> 
+    </div>
+</div>
+</div>
+
+
+
+
+<script>
+
+    let $select_ = $('.searchable').selectize()
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+
+
+    function getCutProduct(product_id){
+        $('#cutProductId').val(product_id)
+    }
+
+    $(document).ready(function() {
+        // Handle form submission with AJAX
+        $('#cutProductBtn').click(function(event) {
+            event.preventDefault();
+
+            cut_data = $('#cutProductForm').serialize()
+
+        
+
+            $.ajax({
+                url: '{% url "main:cut-product" %}',  
+                type: 'POST',
+                data: cut_data,
+                success: function(response) {
+
+                    location.reload()
+
+                    console.log(response.data)
+                   
+                    messageToast(response.status, response.message)
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error)
+
+                }
+            });
+
+
+
+        })
+    })
+
+
+
+
+
+
+
+
+    $(document).ready(function() {
+        // Handle form submission with AJAX
+        $('#editContainerBtn').click(function(event) {
+            event.preventDefault();
+
+
+            let editContainerForm = $(`#editContainerName`).serialize()
+
+            $.ajax({
+                url: '{% url "main:update-container-info" %}',  
+                type: 'POST',
+                data: editContainerForm,
+                success: function(response) {
+
+                    $('#container_name').html(`Konteyner raqami: ${response.data.container_name}  <i class="bi bi-pencil-square text-warning fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#border-less"></i>
+                    <i class="bi bi-trash-fill text-danger fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#dangerContainer"></i>`)
+                    $('#container_come_date').text(response.data.container_come_date)
+                    $('.supplier_info').text(`Ta'minotchi: ${response.data.supplier}`)
+                    messageToast(response.status, response.message)
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error)
+
+                }
+            });
+
+
+        })
+    })
+
+
+    //editProduct
+
+    function getAndPut(product_id, product_size_id) {
+        let modal_product_size = $(`#option_product_size-${product_size_id}`).prop('selected', true)
+        $('#modal_product_id').val(product_id)
+
+        let td_product_qty = $(`#td_product_qty-${product_id}`).text().trim()
+        let td_product_cost = $(`#td_product_cost-${product_id}`).text().trim()
+
+        let modal_product_qty = $(`#modal_product_qty`).val(td_product_qty)
+        let modal_product_cost = $(`#modal_product_cost`).val(td_product_cost)
+
+
+        
+ 
+    }
+    
+    function getCutId(product_id, product_size_id, rest_qty) {
+
+        $('#cut_product_id').val(product_id)
+        let modal_product_size = $(`#cut_option_product_size-${product_size_id}`).prop('selected', true)
+        let modal_product_qty = $(`#edit_modal_product_qty`).val(rest_qty)
+     
+    }
+
+    $(document).ready(function() {
+        
+        $('#updateProductBtn').click(function(event) {
+            let editProductInfo = $(`#editProductInfo`).serialize() 
+
+            $.ajax({
+                url: '{% url "main:edit-product-info" %}',  
+                type: 'POST',
+                data: editProductInfo,
+                success: function(response) {
+                    $(`#td_product_size-${response.data.product_size_id}`).text(response.data.product_size)
+                    
+                    $(`#tr_product_info-${response.data.product_id}`).html(`
+                                
+
+                                        <td class="text-bold-500">#</td>
+                                        <td id="td_product_size-${ response.data.product_size_id }">${ response.data.product_size }</td>
+                                        <td class="text-bold-500" id="td_product_qty-${response.data.product_id}">${response.data.product_qty}</td>
+                                        <td class="text-bold-500" >${response.data.product_cube.toFixed(4)}</td>
+                                        <td class="text-bold-500" id="td_product_cost-${response.data.product_id}">${response.data.come_cost}</td>
+                                        <td class="text-bold-500">${response.data.rest_qty}</td>
+                                        <td class="text-bold-500">${response.data.rest_cube.toFixed(4)}</td>
+
+
+                                        <td><i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                            data-bs-target="#default" onclick="getAndPut(${response.data.product_id}, ${response.data.product_size_id} )"></i></td>
+
+                                        <td><i class="bi bi-trash-fill text-danger fs-5 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#danger"   onclick="getProduct(${response.data.product_id})"></i></td>
+                                        <td><i class="bi bi-dash-circle-dotted text-primary fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                                                data-bs-target="#inlineForm" onclick="getCutProduct(${response.data.product_id })"></i>
+                                        </td>
+
+                           
+                    `) 
+
+                    messageToast(response.status, response.message)
+
+    
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error)
+
+                }
+            });
+
+        })
+    })
+
+
+
+    function getProduct(product_id){
+        $('#putProductId').val(product_id)
+    }
+
+    $(document).ready(function() {
+        
+        $('#deleteConfirmProduct').click(function(event) {
+            
+            let deleteForm = $(`#deleteForm`).serialize()
+
+            $.ajax({
+                url: '{% url "main:delete-product" %}',  
+                type: 'POST',
+                data: deleteForm,
+                success: function(response) {
+                    $(`#tr_product_info-${response.data.product_id}`).remove()
+                    
+                    messageToast(response.status, response.message)
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error)
+
+                }
+            });
+        })
+    })
+    
+
+    
+
+
+</script>
+
+
+
+       
+
+
+{% endblock content %}

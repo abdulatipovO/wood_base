@@ -1,0 +1,377 @@
+
+    
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+<div id="main">
+    <header class="mb-3">
+        <a href="#" class="burger-btn d-block d-xl-none">
+            <i class="bi bi-justify fs-3"></i>
+        </a>
+    </header>
+
+<div class="page-heading">
+    <section class="section">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h3 class="text m-1 " id="container_name">Konteyner raqami: {{ container.name }}   
+                    <i class="bi bi-pencil-square text-warning fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#border-less"></i>
+                    <i class="bi bi-trash-fill text-danger fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#dangerContainer"></i>
+                </h3> 
+             
+
+                <div class="card-text d-flex flex-wrap mt-2">
+                    <h6 class="text text-bold m-1" >Kelgan sanasi: </h6> <h6 class="text m-1 " id="container_come_date"> {{ container.come_date|date:"d/m/Y" }}</h6>
+                </div>
+                
+            </div>
+            <div class="card-body row">
+
+                <div class="col-md-6">
+
+                
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Umumiy harajatlar: </h6> <h6 class="text m-1">{{ general_expenses|floatformat:2}} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Mahsulotlarni summasi: </h6> <h6 class="text m-1">{{ all_product_sum|floatformat:2}} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Chiqimlar summasi: </h6> <h6 class="text m-1">{{ all_expense_sum|floatformat:2}} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Umumiy savdo: </h6> <h6 class="text m-1"> {{ total_sales_revenue_usd|floatformat:2 }} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Tushgan summa: </h6> <h6 class="text m-1"> {{ container_paid_amount|floatformat:2 }} $</h6>
+                    </div>
+                    <div class="card-text d-flex flex-wrap">
+                        <h6 class="text text-bold m-1">Foyda: </h6> <h6 class="text m-1">{{ profit|floatformat:2 }} $</h6>
+                    </div> 
+                   
+                </div>
+            <div class="col-md-6">
+                
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Kelgan mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_come_cube|floatformat:4}} (kuba )</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Sotilgan mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_sold_out|floatformat:4}} (kuba )</h6>
+                </div>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Qoldiq mahsulot hajmi: </h6> <h6 class="text m-1">{{ product_rest_cube|floatformat:4}} (kuba )</h6>
+                </div>
+                <br>
+                <h6 class="text text-bold m-1 supplier_info " >Ta'minotchi: {{ container.supplier_container.name }}</h6>
+                <div class="card-text d-flex flex-wrap">
+                    <h6 class="text text-bold m-1">Ta'minotchidan qolgan qarz: </h6> <h6 class="text m-1">{{ container.difference_summa|floatformat:2}}</h6>
+                </div>
+                <span class="badge bg-primary m-1 " style="cursor: pointer;" data-bs-toggle="modal"
+                data-bs-target="#backToArchive">Arxivlarga o'tkazish   <i class="bi bi-archive mx-1"></i>
+                </span>
+            </div>
+
+               
+            </div>
+         </div>   
+
+    </section>
+
+
+    <div class="card-content">
+        <div class="card-body">
+            
+            <div class="list-group list-group-horizontal-sm mb-1 text-center" >
+
+
+                {% if request.path|slice:":27"  == "/container-products-detail/" %}
+
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:container-products-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-detail' container.id %}" role="tab">Sotuv</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-expence-detail' container.id %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-history' container.id %}" role="tab">Sotuv tarixi</a>
+
+
+                {% elif  request.path|slice:":24" == '/container-trade-detail/' %}
+
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-products-detail' container.id  %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:container-trade-detail' container.id  %}" role="tab">Sotuv</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-expence-detail' container.id  %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-history' container.id %}" role="tab">Sotuv tarixi</a>
+
+               
+                {% elif  request.path|slice:":25" == '/container-expence-detail' %}
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-products-detail' container.id   %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-detail'  container.id  %}" role="tab">Sotuv</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:container-expence-detail' container.id  %}" role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-history' container.id %}" role="tab">Sotuv tarixi</a>
+
+
+                {% elif  request.path|slice:":24" == '/container-trade-history' %}
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-products-detail' container.id %}" role="tab">Mahsulotlar</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-trade-detail' container.id  %} " role="tab">Sotuv</a>
+                <a class="list-group-item list-group-item-action " href="{% url 'main:container-expence-detail' container.id  %} " role="tab">Chiqimlar</a>
+                <a class="list-group-item list-group-item-action active" href="{% url 'main:container-trade-history' container.id %}" role="tab">Sotuv tarixi</a>
+                {% else %}
+                {% endif %}
+
+            </div>
+
+            
+        
+                   <!-- start 1 section -->
+                    <section class="section mt-3">
+                        <div class="card">
+                         
+                
+                            <div class="row" id="table-inverse">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                       
+                                        
+                                        <div class="card-content m-3">
+                                        
+                                            <div class="table-responsive">
+                                              
+                                                <table class="table table-bordered mb-0 mt-2 text-center" style="max-height: 40vh;">
+                
+                
+                                                    <thead >
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Sana</th>
+                                                            <th>Chiqim turi</th>
+                                                            <th>Ishchilar</th>
+                                                            <th>Summa</th>
+                                                            <th>Valyuta</th>
+                                                            <th>Valyuta kursi / so'm</th>
+                                                          
+                                                        
+                                                        </tr>
+                                                       
+                                                        </tr> 
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for expense in expenses %}
+                
+                                                        <tr style="font-weight:bold;">
+                                                            <td class="text-bold-500">#</td>
+                                                            <td class="text-bold-500">{{ expense.created_at|date:"d/m/Y" }}</td>
+                                                            {% if expense.expense_type == None %}
+                                                            <td></td>
+                                                            {% else %}
+                                                            <td>{{expense.expense_type}}</td>
+                                                            {% endif %}
+                                                            {% if expense.workers == None %}
+                                                            <td></td>
+                                                            {% else %}
+                                                            <td>{{expense.workers}}</td>
+                                                            {% endif %}
+
+                                                            <td class="text-bold-500">{{ expense.only_sum|floatformat:2 }}</td>
+                                                            <td class="text-bold-500">{% if expense.currency == 1 %}${% else %}so'm{% endif %}</td>
+                                                            <td class="text-bold-500">{{ expense.exchange_rate }}</td>
+                                                            
+                                                            
+                                                        </tr>
+                                                        {% endfor %}
+                                                        
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                     
+                          
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                
+                
+                        </div>
+                    </section> 
+                    <!-- end 1 section -->
+
+                
+            </div>
+        </div>
+    </div>
+
+
+
+   
+</div> 
+
+</div>
+
+
+<div class="modal fade text-left" id="dangerContainer" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel120" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    role="document">
+    <div class="modal-content">
+        <div class="modal-header bg-danger">
+            <h5 class="modal-title white" id="myModalLabel120"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-center" id="myModalLabel120">Ushbu konteynerni o'chirishni xoxlaysizmi ?</h5>
+            <p class="text-center">Ushbu konteyner o'chirilgan taqdirda unga bog'liq barcha ma'lumotlar o'chiriladi !</p>
+            <form action="{% url 'main:delete-container' %}" method="post" >{% csrf_token %}
+                <input type="number" step="any" style="display: none;" name="container_id" value="{{container.id }}">
+                <div class="btns d-flex justify-content-center m-4">
+
+                    <button type="button" class="btn btn-light-secondary  m-3"
+                        data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Yo'q</span>
+                    </button>
+                    <button type="submit" class="btn btn-danger ms-1 m-3">
+                        Ha
+                    </button>
+                </div>
+            </form>
+        </div>
+     
+    </div>
+</div>
+</div>
+
+<!-- modal 1 -->
+<div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Konteynerni tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="" id="editContainerName" method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+
+                    <select id="client_select" class="searchable" required name="supplier">
+                        <option value="0" selected>Ta'minotchini tanlang</option>
+                        {% for supplier in suppliers %}
+                        {% if  supplier.id == container.supplier_container.id %}
+                        <option value="{{ supplier.id }}" selected>{{ supplier.name }}</option>
+                        {% else %}
+                        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                        {% endif %}
+                        
+                        {% endfor %}
+                    </select>
+
+                    <label for="basicInput" class="m-1">Raqami</label>
+                    <input type="text" class="form-control" id="basicInput" name="name" value="{{ container.name }}" required>
+                    <label for="basicInputDate1" class="m-1">Sana</label>
+                    
+                    <input type="date" class="form-control" id="basicInputDate1"  name="date" value="{{ container.come_date|date:'Y-m-d' }}" required>
+                    <input type="text" value="{{ container.id }}" name="container_id" style="display: none;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Orqaga</span>
+                    </button>
+                    <button type="button" id="editContainerBtn" class="btn btn-primary ms-1" data-bs-toggle="modal" data-bs-target="#border-less">
+                        <i class="bx bx-check d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">O'zgartirish</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+<!-- endmodal 1 -->
+
+
+<div class="modal fade text-left" id="backToArchive" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel120" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    role="document">
+    <div class="modal-content">
+        <div class="modal-header ">
+            <h5 class="modal-title white" id="myModalLabel120"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-center" id="myModalLabel120">Ushbu konteynerni arxivdan chiqarmoqchimisiz ?</h5>
+            <p class="text-center">Arxivdan chiqarilgan barcha konteynerlar asosiy sahifaga qo'shiladi !</p>
+            <form action="{% url 'main:back-archive-container' %}" method="post" >{% csrf_token %}
+                <input type="number" step="any" style="display: none;" name="container_id" value="{{container.id }}">
+                <div class="btns d-flex justify-content-center m-4">
+
+                    <button type="button" class="btn btn-light-secondary  m-3"
+                        data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block " >Yo'q</span>
+                    </button>
+                    <button type="submit" class="btn btn-primary text-white ms-1 m-3">
+                        Ha
+                    </button>
+                </div>
+            </form>
+        </div>
+     
+    </div>
+</div>
+</div>
+
+
+<script>
+    let $select_ = $('.searchable').selectize()
+    
+    $(document).ready(function() {
+        // Handle form submission with AJAX
+        $('#editContainerBtn').click(function(event) {
+            event.preventDefault();
+
+
+            let editContainerForm = $(`#editContainerName`).serialize()
+
+            $.ajax({
+                url: '{% url "main:update-container-info" %}',  
+                type: 'POST',
+                data: editContainerForm,
+                success: function(response) {
+
+                    $('#container_name').html(`Konteyner raqami: ${response.data.container_name}  <i class="bi bi-pencil-square text-warning fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#border-less"></i>
+                    <i class="bi bi-trash-fill text-danger fs-4 mr-4" role="button" data-bs-toggle="modal"
+                    data-bs-target="#dangerContainer"></i>`)
+                    $('#container_come_date').text(response.data.container_come_date)
+                    $('.supplier_info').text(`Ta'minotchi: ${response.data.supplier}`)
+                    messageToast(response.status, response.message)
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error)
+
+                }
+            });
+
+
+        })
+    })
+
+</script>
+
+{% endblock content %}

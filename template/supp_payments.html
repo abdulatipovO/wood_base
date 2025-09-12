@@ -1,0 +1,469 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="static/assets/extensions/simple-datatables/style.css">
+
+
+
+        <div id="main">
+
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            <div class="page-heading">
+
+                <section class="section"> 
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="text">Taminotchiga to'lovlar</h3> 
+                            <div class="add-clients-btn d-flex justify-content-end" style="margin-top: -45px;" onclick="putCurrency()">
+                                <a href="#" class="btn btn-primary m-1"  data-bs-toggle="modal" data-bs-target="#border-less" >To'lov qilish +</a>
+                            </div> 
+                            
+                        </div>
+                        <div class="card-body">
+                            <form method="get" class="filter-section d-flex justify-content-start mb-3">
+                                <input type="date" class="form-control me-3" name="start-date" placeholder="Boshlanish sanasi" value="{{ start_date }}">
+                                <input type="date" class="form-control me-3" name="end-date" placeholder="Tugash sanasi" value="{{ end_date }}">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-funnel"></i>
+                                </button>
+                            </form>
+                            <table class="table table-striped  mt-2" id="table1">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Sana</th>
+                                        <th>Ta'minotchi</th>
+                                        <th>Konteyner</th>
+                                        <th>To'langan summa</th>
+                                        <th>Izoh</th>
+                                        <th></th>
+                                        <th></th>
+                                      
+                                    </tr>
+                                </thead>
+                                    <tbody>
+                                        {% for payment in payments %}
+                                        <tr id="tr_payment-{{ payment.id }}">
+                                            <td>{{forloop.counter}}</td>
+                                            <td>{{payment.created_at|date:'d/m/Y H:i'}}</td>
+                                            <td id="td_customer_name-{{ payment.id }}" data-id="{{ payment.client_account.client_info.id }}">{{ payment.supplier_name.name }}</td>
+                                            <td id="td_container_payment-{{ payment.id }}" data-id="{{ payment.client_account.container_client.id }}">{{ payment.container_name.name }}</td>
+                                            <td id="supplier_paid_summa-{{ payment.id }}">{{ payment.paid_summa|floatformat:2 }}</td>
+                                            <td id="td_comment-{{ payment.id }}">{{ payment.comment|default:'-' }}</td>
+                                            <td><i class="bi bi-pencil-square text-warning fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                            data-bs-target="#default" onclick="editPayment('{{ payment.id }}')" ></i></td>
+
+                                             <td><i class="bi bi-trash-fill text-danger fs-5 cursor-pointer" role="button" data-bs-toggle="modal" data-bs-target="#danger"onclick="getPayment('{{ payment.id }}')"  ></i></td>
+                              
+                                        </tr>
+                                    {% endfor %}
+                                    
+                                        
+                                        
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+
+
+<div class="modal fade text-left" id="danger" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel120" aria-hidden="true">
+
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+    role="document">
+    <div class="modal-content">
+        <div class="modal-header bg-danger">
+            <h5 class="modal-title white" id="myModalLabel120"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <h5 class="modal-title text-center" id="myModalLabel120">Ushbu to'lov tarixini o'chirishni xoxlaysizmi ?</h5>
+            <form action="#" method="post" id="deleteForm">{% csrf_token %}
+                <input type="number" step="any" style="display: none;" id="putPaymentId" name="payment_id">
+            </form>
+            <div class="btns d-flex justify-content-center m-4">
+
+                <button type="button" class="btn btn-light-secondary  m-3"
+                    data-bs-dismiss="modal">
+                    <i class="bx bx-x d-block d-sm-none"></i>
+                    <span class="d-none d-sm-block">Yo'q</span>
+                </button>
+                <button type="button" class="btn btn-danger ms-1 m-3"
+                    data-bs-dismiss="modal" id="deleteConfirmPayment">
+                    <i class="bx bx-check d-block d-sm-none" ></i>
+                    <span class="d-none d-sm-block">Ha</span>
+                </button>
+            </div>
+        </div>
+     
+    </div>
+</div>
+</div>
+
+
+
+<div class="modal fade text-left" id="default" tabindex="-1" role="dialog"
+aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myModalLabel1">To'lov ma'lumotlarini tahrirlash</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editPaymentForm" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="editPaymentId" name="payment_id">
+               
+                
+                <div class="form-group">
+                    <label for="paymentSumInput" class="m-1">Summa</label>
+                    <input type="number" step="any" class="form-control" id="modal_paymentSumInput" placeholder="summa" required name="payment_sum">
+                    <p class="modal_summa_error_msg text-start text-danger mt-1" style="display: none;">
+                        Summani kiriting !
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="" class="m-1">Izoh (majburiy emas)</label>
+                    <textarea name="comment" class="form-control" id="comment"></textarea>
+                </div>
+            </form>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn" data-bs-dismiss="modal">
+                <i class="bx bx-x d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Orqaga</span>
+            </button>
+            <button type="submit" class="btn btn-primary ms-1"  id="updateProductBtn">
+                <i class="bx bx-check d-block d-sm-none"></i>
+                <span class="d-none d-sm-block">Saqlash</span>
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+
+    <div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+    role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">To'lov qo'shish</h5>
+                <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm"  method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <p class="debt_info text-start text-warning" style="display:none;">
+                           
+                        </p>
+                        
+                    <select id="client_select" class="searchable" required name="supplier">
+                        <option value="0" selected>Ta'minotchini tanlang</option>
+                        {% for supplier in suppliers %}
+                        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                        <p class="client_error_msg text-start text-danger" style="display: none;">
+                            Ta'minotchilardan birini tanlang !
+                        </p>
+                    </div>
+                    <!-- <div class="form-group">
+                        <select id="containerselect" class="searchable-2" required  name="container">
+                            <option value="0" selected>Konteynerni tanlang</option>
+                            {% for container in containers %}
+                            <option value="{{ container.id }}">{{ container.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <p class="container_error_msg text-start text-danger" style="display: none;">
+                            Konteynerlardan birini tanlang !
+                        </p>
+                        
+                    </div> -->
+                  
+                    
+                    <div class="form-group">
+                        <label for="paymentSumInput" class="m-1">Summa</label>
+                        <input type="number" step="any" class="form-control" id="paymentSumInput" placeholder="summa" required name="payment_sum">
+                        <p class="summa_error_msg text-start text-danger mt-1" style="display: none;">
+                            Summani kiriting !
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="m-1">Izoh (majburiy emas)</label>
+                        <textarea name="comment" class="form-control"></textarea>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                    <i class="bx bx-x d-block d-sm-none"></i>
+                    <span class="d-none d-sm-block">Orqaga</span>
+                </button>
+                <button type="submit" class="btn btn-primary ms-1" id="paymentBtn">
+                    Tasdiqlash
+                </button>
+            </div>
+                </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+       
+    function getPayment(payment_id){
+        $('#putPaymentId').val(payment_id)
+    }
+
+    function editPayment(payment_id){
+        let summa = $(`#supplier_paid_summa-${ payment_id }`).text()
+        let comment = $(`#td_comment-${ payment_id }`).text()
+        $('#modal_paymentSumInput').val(summa)
+        $('#editPaymentId').val(payment_id)
+        $('#comment').val(comment)
+
+    }
+
+
+    $(document).ready(function() {
+        
+        $('#deleteConfirmPayment').click(function(event) {
+            
+            let deleteForm = $(`#deleteForm`).serialize()
+
+            $.ajax({
+                url: '{% url "main:delete-supplier-payment" %}',  
+                type: 'POST',
+                data: deleteForm,
+                success: function(response) {
+
+                    location.reload()
+
+                    messageToast(response.status, response.message)
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+                    messageToast(status, error)
+
+                }
+            });
+        })
+    })
+
+    $(document).ready(function() {
+        // Handle form submission with AJAX
+        $('#updateProductBtn').click(function(event) {
+            let valid = true
+            formData = $('#editPaymentForm').serialize()
+
+            if ($('#modal_paymentSumInput').val().trim() === '') {
+                valid = false;
+                $('.modal_summa_error_msg').show()
+            }else{
+                valid = true;
+
+                $('.modal_summa_error_msg').hide()
+            }
+
+
+            if (valid) {
+
+  
+            $.ajax({
+                url: '{% url "main:edit-supplier-payment" %}',  
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+
+                    location.reload()
+
+                    messageToast(response.status, response.message)
+
+                },
+                error: function(error) {
+                    // Handle error
+                    console.log('Error:', error);
+                    messageToast(status, error)
+                    
+                }
+            });
+        }
+
+        })
+    })
+
+
+    let $select_ = $('.searchable').selectize()
+        
+
+
+        $(document).ready(function() {
+            // Handle form submission with AJAX
+            $('#paymentBtn').click(function(event) {
+
+                let currencySelect = $('#currencySelect');
+                let containerselect = $('#containerselect');
+                let client_select = $('#client_select');
+
+          
+
+                let valid = true;
+               
+                if (client_select.val() === "0") {
+                    valid = false;
+                    $('.client_error_msg').show()
+                  
+                }else{
+                    valid = true
+                    $('.client_error_msg').hide()
+                }
+                if (containerselect.val() === "0") {
+                    valid = false;
+                    $('.container_error_msg').show()
+                  
+                }else{
+                    valid = true
+                    $('.container_error_msg').hide()
+                }
+
+
+                if ($('#paymentSumInput').val().trim() === '') {
+                    valid = false;
+                    $('.summa_error_msg').show()
+                }else{
+                    $('.summa_error_msg').hide()
+                }
+
+                
+                
+                
+                if (valid) {
+                    event.preventDefault();
+                    
+                    formData = $('#paymentForm').serialize()
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url "main:payment-supplier" %}',
+                        data: formData,
+                        success: function(response) {
+                            if(response.status == 200){
+                                location.reload()
+
+                            }
+
+                            messageToast(response.status, response.message)
+
+                        },
+                        error: function(error) {
+                            alert('Error submitting data');
+                            
+                            messageToast(status, error)
+
+                            // Handle error response
+                        }
+                    });
+
+
+                }
+                
+            })
+
+
+        });
+
+
+        $('#default').on('hidden.bs.modal', function() {
+            $('#paymentForm')[0].reset();
+            $('#modal_currencySelect')[0].selectize.clear();
+        });
+
+
+        $(document).ready(function() {
+            // Initialize Selectize
+            $('#client_select').selectize();
+            $('#containerselect').selectize();
+        
+            function sendAjaxRequest(supplierId) {
+                $.ajax({
+                    url: '{% url "main:get-supplier-debt" %}',  // Replace with your actual URL
+                    type: 'POST',
+                    data: {
+                        supplierId: supplierId,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        $('.debt_info').show()
+                        $('.debt_info').html(`
+                        Qarz: ${response.data.debt_usd.toFixed(2)} $
+                        `)
+                    
+                    },
+                    error: function(error) {
+                        // Handle error
+                        $('.debt_info').show()
+                        $('.debt_info').html(`
+                        Qarz: 0 $
+                        `)
+
+                    }
+                });
+            }
+        
+            function checkAndSendAjax() {
+                let clientSelect = $('#client_select')[0].selectize;
+                // let containerSelect = $('#containerselect')[0].selectize;
+        
+                let clientId = clientSelect.getValue();
+                // let containerId = containerSelect.getValue();
+        
+                if (clientId !== '0') {
+                    sendAjaxRequest(clientId);
+                }else{
+                    $('.debt_info').hide()
+
+                }
+            }
+        
+            $('#client_select').change(function() {
+                checkAndSendAjax();
+            });
+        
+            $('#containerselect').change(function() {
+                checkAndSendAjax();
+            });
+        });
+        
+
+
+</script>
+
+<script src="static/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
+<script src="static/assets/static/js/pages/simple-datatables.js"></script>
+
+
+{% endblock %}

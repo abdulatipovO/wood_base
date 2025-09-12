@@ -1,0 +1,476 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="static/assets/extensions/simple-datatables/style.css">
+
+
+
+        <div id="main">
+
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            <div class="page-heading">
+
+                <section class="section"> 
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Korzina</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-body">
+                                    
+                                    <div class="list-group list-group-horizontal-sm mb-1 text-center" role="tablist">
+                                        <a class="list-group-item list-group-item-action active" id="list-sunday-list" data-bs-toggle="list" href="#list-sunday" role="tab" aria-selected="true">Mahsulotlar</a>
+                                        <a class="list-group-item list-group-item-action" id="list-monday-list" data-bs-toggle="list" href="#list-monday" role="tab" aria-selected="false" tabindex="-1">Sotuv tarixi</a>
+                                        <a class="list-group-item list-group-item-action" id="list-tuesday-list" data-bs-toggle="list" href="#list-tuesday" role="tab" aria-selected="false" tabindex="-1">Chiqimlar</a>
+                                    </div>
+                                    <div class="tab-content text-justify">
+                                        <div class="tab-pane fade active show pt-4" id="list-sunday" role="tabpanel" aria-labelledby="list-sunday-list">
+
+                                            <table class="table table-bordered mb-0"  id="table1">
+                
+                
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>O'lcham</th>
+                                                        <th>Dona</th>
+                                                        <th>Hajmi (kuba )</th>
+                                                        <th>Narx ( $ |kuba )</th>
+                                                        <th>Qoldiq ( dona )</th>
+                                                        <th>Qoldiq (kuba )</th>
+                                                        <th>O'chirilgan sana</th>
+
+                                                        <th>Qayta tiklash</th>
+                                             
+                                                    </tr>
+                                              
+                                                </thead>
+                                                <tbody>
+
+                                                    {% for product in products %}
+            
+                                                    <tr id="tr_product_info-{{  product.id }}" style="font-weight:bold;">
+                                                        <td class="text-bold-500">#</td>
+                                                        <td id="td_product_size-{{ product.product_size.id }}">{{ product.product_size }} | {{ product.product_size.product_size_title }} {% if product.is_cut %} (kesilgan) {% else %}{% endif %}</td>
+                                                        <td class="text-bold-500" id="td_product_qty-{{ product.id }}">{{ product.product_qty }}</td>
+                                                        <td class="text-bold-500" >{{ product.product_cube|floatformat:4 }}</td>
+                                                        <td class="text-bold-500" id="td_product_cost-{{ product.id }}">{{ product.come_cost }}</td>
+                                                        <td class="text-bold-500">{{ product.rest_qty }}</td>
+                                                        <td class="text-bold-500">{{ product.rest_cube|floatformat:4 }}</td>
+                                                        <td class="text-bold-500">{{ product.updated_at|date:'d/m/Y' }}</td>
+
+                                                        <td class="text-center"><i class="bi bi-arrow-clockwise text-primary fs-5 cursor-pointer" role="button" data-bs-toggle="modal"
+                                                            data-bs-target="#ProductModal" onclick="getProductID('{{ product.id }}')"></i>
+                                                        </td>
+
+                                                       
+                                              
+                                                    </tr>
+                                                    {% endfor %}
+                                                    
+                                                </tbody>
+                                            </table>
+                                        
+                                        </div>
+                                        <div class="tab-pane fade" id="list-monday" role="tabpanel" aria-labelledby="list-monday-list">
+
+                                                <div class="card">
+                                                    
+                                                    <div class="card-content m-3">
+            
+                                                        <div class="accordion accordion-flush" id="accordionFlushExample">
+
+                                                            {% if orders.count == 0 %}
+                                                            <h6 class="text-center">Hech narsa topilmadi !</h6>
+                                                            {% else %}
+            
+                                                            {% for order in orders %}
+            
+                                                            <div class="accordion-item mt-3 ">
+                                                                <h2 class="accordion-header d-flex" id="flush-heading-{{ order.id }}" style="background-color: #F2F7FF;">
+                                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-{{ order.id }}" aria-expanded="false" aria-controls="flush-collapse-{{ order.id }}" style="background-color: #F2F7FF; border-radius:5px;">
+                                                                        {{ order.created_at|date:'d/m/Y' }} | Jami: {{ order.self_total_summa|floatformat:2 }} {% if order.currency == 1 %} $ {% else %} so'm {% endif %} | {{ order.customer.name }} | Chegirma: {{ order.discount }} | Konteyner: {{ order.container_order.name }} | O'chirilgan sana: {{ order.updated_at|date:'d/m/Y' }}
+                                                                    </button>
+                                                                    <i class="bi bi-arrow-clockwise  text-primary fs-5 cursor-pointer m-3" role="button" data-bs-toggle="modal" data-bs-target="#OrderModal" onclick="getOrderID('{{ order.id }}')" ></i>
+            
+                                                                
+                                                                </h2>
+                                                                <div id="flush-collapse-{{ order.id }}" class="accordion-collapse collapse" aria-labelledby="flush-heading-{{ order.id }}" data-bs-parent="#accordionFlushExample">
+                                                                    <div class="accordion-body">
+                                                                        <div class="table-responsive">
+                                                            
+                                                          
+                                                                            <table class="table table-bordered mb-0 " style="max-height: 40vh;">
+                                            
+                                            
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th>#</th>
+                                                                                        <th>Nomi</th>
+                                                                                        <th>Soni</th>
+                                                                                        <th>Narxi</th>
+                                                                                        <th>Valyuta</th>
+                                                                                        <th>Jami</th>
+                                                                                        
+                                                                             
+                                                                                    </tr>
+                                                                              
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    {% for item in order.items.all %}
+                                                                                    <tr style="font-weight:bold;">
+                                                                                        <td class="text-bold-500">{{ forloop.counter }}</td>
+                                                                                        <td>{{item.product_item.product_size}} | {{ item.product_item.product_size.product_size_title }}</td>
+                                                                                        <td id="td_item_qty-{{ item.id }}" class="text-bold-500">{{ item.amount_sold }}</td>
+                                                                                        <td  id="td_item_cost-{{ item.id }}"  class="text-bold-500">{{ item.product_cost }}</td>
+                                                                                        <td  id="td_item_cost-{{ item.id }}"  class="text-bold-500">{% if order.currency == 1 %} $ {% else %} so'm {% endif %}</td>
+                                                                                        <td class="text-bold-500">{{ item.total_price }}</td>
+                                                                                       
+                                                                              
+                                                                                    </tr>
+                                                                                    {% endfor %}
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+            
+                                                            {% endfor %}
+
+                                                            {% endif %}
+                                                            
+            
+                                                            </div>
+                                                    
+                                                      
+                                                 
+                                      
+                                                    </div>
+                                                </div>
+
+                                        </div>
+                                        <div class="tab-pane fade" id="list-tuesday" role="tabpanel" aria-labelledby="list-tuesday-list" >
+                                            <div class="card">
+                                               
+                                                <div class="card-body">
+                                                
+                                                   
+                                                    <!-- <table class="table table-striped  mt-2" id="table1"> -->
+                                                    <div class="table-responsive">
+                        
+                                                        <table class="table table-bordered  mb-0 mt-2 text-center" id="table1" style="max-height: 40vh; border-top:1px solid lightgray;">
+                                        
+                                        
+                                                            <thead >
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Sana</th>
+                                                                    <th>Chiqim turi</th>
+                                                                    <th>Ishchilar</th>
+                                                                    <th>Summa</th>
+                                                                    <th>Taqsimoti</th>
+                                                                    <th>Valyuta kursi / so'm</th>
+                                                                    <th>Konteyner raqamlari</th>
+                                                                    <th>O'chirilgan sana</th>
+                                                                    <th>Qayta tiklash</th>
+                                                                  
+                                                                
+                                                                </tr>
+                                                               
+                                                                </tr> 
+                                                            </thead>
+                                                            <tbody id="tbody_expense">
+                                                                {% for expense in expenses %}
+                        
+                                                                <tr id="tr_expense-{{ expense.id }}">
+                                                                    <td class="text-bold-500" style="border-top:1px solid lightgray;">{{ forloop.counter }}</td>
+                                                                    <td style="border-top:1px solid lightgray;">{{ expense.created_at|date:"d/m/Y" }}</td>
+                                                                    {% if expense.expense_type == None %}
+                                                                    <td style="border-top:1px solid lightgray;"></td>
+                                                                    {% else %}
+                                                                    <td style="border-top:1px solid lightgray;">{{expense.expense_type}}</td>
+                                                                    {% endif %}
+                                                                    {% if expense.workers == None %}
+                                                                    <td style="border-top:1px solid lightgray;"></td>
+                                                                    {% else %}
+                                                                    <td style="border-top:1px solid lightgray;">{{expense.workers}}</td>
+                                                                    {% endif %}
+                        
+                                                                    <td class="text-bold-500" style="border-top:1px solid lightgray;" id="expense_summa-{{ expense.id }}" data-summa="{{ expense.expense_summa }}">{{ expense.expense_summa|floatformat:2 }}   {% if expense.currency == 1 %}${% else %}so'm{% endif %}</td>
+                                                                    <td class="text-bold-500" style="border-top:1px solid lightgray;">{{ expense.only_sum|floatformat:2 }}   {% if expense.currency == 1 %}${% else %}so'm{% endif %}</td>
+                                                                    
+                                                                    <td class="text-bold-500" style="border-top:1px solid lightgray;" id="exchange_rate-{{ expense.id }}">{{ expense.exchange_rate }}</td>
+                                                                    <td class="text-bold-500 d-block" style="border-top:1px solid lightgray;">
+                                                                        {% for container in expense.containers.all %}
+                                                                        <p>{{ container.name }}</p>
+                                                                        {% endfor %}
+                                                                    </td>
+                                                                    <td style="border-top:1px solid lightgray;">
+                                                                        {{ expense.updated_at|date:'d/m/Y' }}
+                                                                    </td>
+                                                                    <td style="border-top:1px solid lightgray;">
+                                                                        <i class="bi bi-arrow-clockwise text-primary fs-5 cursor-pointer m-1" role="button" data-bs-toggle="modal" data-bs-target="#ExpenseModal" onclick="getExpenseID('{{ expense.id }}')"></i>
+                                                                    </td>
+                                                                    
+                                                                    
+                                                                </tr>
+                                                                {% endfor %}
+                                                                
+                                                            </tbody>
+                                                        </table>
+                                                        </div>
+                        
+                        
+                                                    <!-- </table> -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </section>
+            </div>
+        </div>
+  
+
+
+<div class="modal fade text-left" id="ProductModal" tabindex="-1" role="dialog"
+        aria-labelledby="myModalLabel120" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+            role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title white" id="myModalLabel120"></h5>
+                    <button type="button" class="close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="modal-title text-center" id="myModalLabel120">Ushbu mahsulotni korzinadan chiqarmoqchimisiz ?</h5>
+                    <p class="text-center">Ushbu amal bajarilgan taqdirda mahsulot sotuv konteyneriga qaytariladi.</p>
+                    <form action="#" method="post" id="backProduct">{% csrf_token %}
+                        <input type="number" step="any" style="display: none;" id="putProductId" name="product_id">
+                    </form>
+                    <div class="btns d-flex justify-content-center m-4">
+        
+                        <button type="button" class="btn btn-light-secondary  m-3"
+                            data-bs-dismiss="modal">
+                            <i class="bx bx-x d-block d-sm-none"></i>
+                            <span class="d-none d-sm-block">Yo'q</span>
+                        </button>
+                        <button type="button" class="btn btn-danger ms-1 m-3"
+                            data-bs-dismiss="modal" id="backConfirmProduct">
+                            <i class="bx bx-check d-block d-sm-none" ></i>
+                            <span class="d-none d-sm-block">Ha</span>
+                        </button>
+                    </div>
+                </div>
+             
+            </div>
+        </div>
+        </div>
+
+
+
+<div class="modal fade text-left" id="OrderModal" tabindex="-1" role="dialog"
+        aria-labelledby="myModalLabel120" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+            role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title white" id="myModalLabel120"></h5>
+                    <button type="button" class="close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="modal-title text-center" id="myModalLabel120">Ushbu sotuv tarixini korzinadan chiqarmoqchimisiz ?</h5>
+                    <p class="text-center">Ushbu amal bajarilgan taqdirda sotuv tarixi konteyner ma'lumotlariga qo'shiladi.</p>
+                    <form action="#" method="post" id="backOrder">{% csrf_token %}
+                        <input type="number" step="any" style="display: none;" id="putOrderId" name="order_id">
+                    </form>
+                    <div class="btns d-flex justify-content-center m-4">
+        
+                        <button type="button" class="btn btn-light-secondary  m-3"
+                            data-bs-dismiss="modal">
+                            <i class="bx bx-x d-block d-sm-none"></i>
+                            <span class="d-none d-sm-block">Yo'q</span>
+                        </button>
+                        <button type="button" class="btn btn-danger ms-1 m-3"
+                            data-bs-dismiss="modal" id="backConfirmOrder">
+                            <i class="bx bx-check d-block d-sm-none" ></i>
+                            <span class="d-none d-sm-block">Ha</span>
+                        </button>
+                    </div>
+                </div>
+             
+            </div>
+        </div>
+        </div>
+
+
+<div class="modal fade text-left" id="ExpenseModal" tabindex="-1" role="dialog"
+        aria-labelledby="myModalLabel120" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+            role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title white" id="myModalLabel120"></h5>
+                    <button type="button" class="close" data-bs-dismiss="modal"
+                        aria-label="Close">
+                        <i data-feather="x"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5 class="modal-title text-center" id="myModalLabel120">Ushbu chiqimni korzinadan chiqarmoqchimisiz ?</h5>
+                    <p class="text-center">Ushbu amal bajarilgan taqdirda chiqim konteyner ma'lumotlariga qo'shiladi.</p>
+                    <form action="#" method="post" id="backExpense">{% csrf_token %}
+                        <input type="number" step="any" style="display: none;" id="putExpenseId" name="expense_id">
+                    </form>
+                    <div class="btns d-flex justify-content-center m-4">
+        
+                        <button type="button" class="btn btn-light-secondary  m-3"
+                            data-bs-dismiss="modal">
+                            <i class="bx bx-x d-block d-sm-none"></i>
+                            <span class="d-none d-sm-block">Yo'q</span>
+                        </button>
+                        <button type="button" class="btn btn-danger ms-1 m-3"
+                            data-bs-dismiss="modal" id="backConfirmExpense">
+                            <i class="bx bx-check d-block d-sm-none" ></i>
+                            <span class="d-none d-sm-block">Ha</span>
+                        </button>
+                    </div>
+                </div>
+             
+            </div>
+        </div>
+        </div>
+
+
+
+<script>
+    function getProductID(id){
+        $('#putProductId').val(id)
+        
+    }
+    function getOrderID(id){
+        $('#putOrderId').val(id)
+        
+    }
+
+    function getExpenseID(id){
+        $('#putExpenseId').val(id)
+        
+    }
+
+    $(document).ready(function() {
+        $('#backConfirmProduct').click(function(event) {
+
+
+            let backProduct = $('#backProduct').serialize()
+
+
+            $.ajax({
+                url: '{% url "main:back-product" %}',  
+                type: 'POST',
+                data: backProduct,
+                success: function(response) {
+
+                    location.reload()
+
+                    messageToast(response.status, response.message)
+
+
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);                    
+                    messageToast(status, error)
+
+
+
+                }
+            });
+
+
+        })
+    })
+
+
+    $(document).ready(function() {
+        $('#backConfirmOrder').click(function(event) {
+
+            let backOrder = $('#backOrder').serialize()
+
+
+            $.ajax({
+                url: '{% url "main:back-order" %}',  
+                type: 'POST',
+                data: backOrder,
+                success: function(response) {
+
+                    location.reload()
+
+                    messageToast(response.status, response.message)
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);                    
+                    messageToast(status, error)
+
+                }
+            });
+
+
+        })
+    })
+
+    $(document).ready(function() {
+        $('#backConfirmExpense').click(function(event) {
+
+            let backOrder = $('#backExpense').serialize()
+
+
+            $.ajax({
+                url: '{% url "main:back-expense" %}',  
+                type: 'POST',
+                data: backOrder,
+                success: function(response) {
+
+                    location.reload()
+
+                    messageToast(response.status, response.message)
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);                    
+                    messageToast(status, error)
+
+                }
+            });
+
+
+        })
+    })
+    
+</script>
+
+
+
+<script src="static/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
+<script src="static/assets/static/js/pages/simple-datatables.js"></script>
+
+
+{% endblock %}

@@ -1,0 +1,606 @@
+{% extends 'wrapper.html' %}
+
+{% block content %}
+
+
+    <div id="main">
+            <header class="mb-3">
+                <a href="#" class="burger-btn d-block d-xl-none">
+                    <i class="bi bi-justify fs-3"></i>
+                </a>
+            </header>
+            
+<!-- <div class="page-heading">
+    <h3>Profile Statistics</h3>
+</div>  -->
+
+<div class="form-group text-center" >
+    <input type="text" placeholder="Qidiruv..." class="form-control w-50 mx-auto m-2" id="searchContainerInput" style="border-radius: 26px;">
+</div>
+
+<div class="add-container-btn d-flex justify-content-end" >
+    <a href="#" class="btn btn-info text-white m-2"  data-bs-toggle="modal"    data-bs-target="#animation"">Razmer qo'shish +</a>
+    <a href="#" class="btn btn-primary m-2"  data-bs-toggle="modal" data-bs-target="#border-less">Konteyner qo'shish +</a>
+</div>
+
+                             
+<div class="page-content"> 
+    <section class="row" id="containers_list">
+
+        {% if containers.count > 0 %}
+
+        {% for container in containers %}
+        
+        <div class="col-md-4 mt-2">
+            <div class="card" >
+                <div class="card-content" style="
+                background-image: url(static/assets/static/images/extra-images/container-bg.png); 
+                height:200px; 
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;" >
+                    <!-- <img class="img-fluid" src="../static/assets/static/images/extra-images/container-bg.png" alt="Card image cap"> -->
+                    <div class="col-md-8 col-lg-12 col-xl-12 p-4">
+                        <h4 class="text-white font-bold">{{ container.name }}</h4>
+                        <h6 class="text-white font-semibold float-right" >{{ container.come_date|date:"d/m/Y" }}</h6>
+                        
+                    </div>
+                </div>
+                
+                <div class="card-footer d-flex justify-content-between">
+                   
+                    
+                    <a href="{% url 'main:container-products-detail' container.id  %}" class="text-white btn btn-info">Mahsulotlar</a>
+                    <a href="{% url 'main:container-trade-detail' container.id  %}" class="text-white btn btn-success">Sotuv</a>
+                    <a href="{% url 'main:container-expence-detail' container.id %}" class="text-white btn btn-primary">Chiqimlar</a>
+                    
+                  
+                </div>
+            </div>
+        </div>  
+        {% endfor %}
+
+        {% else %}
+        <div class="col-md-12">
+            <h5 class="text-center mt-5">Konteynerlar mavjud emas !</h5>
+        </div>
+        {% endif %}
+        
+       
+          
+
+
+            
+
+    </section>
+</div>
+
+
+<!-- modals -->
+<div class="modal fade text-left modal-borderless" id="border-less" tabindex="-1"
+role="dialog" aria-labelledby="myModalLabel1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Konteyner qo'shish</h5>
+            <button type="button" class="close rounded-pill" data-bs-dismiss="modal"
+                aria-label="Close">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+           <form action="#" method="post">
+            {% csrf_token %}
+           
+                <div class="form-group">
+                    
+                    <select id="client_select" class="searchable" required name="supplier">
+                        <option value="0" selected>Ta'minotchini tanlang</option>
+                        {% for supplier in suppliers %}
+                        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="basicInputContainer" class="m-2">Konteyner raqami</label> 
+                    <input type="text" class="form-control m-2" id="basicInputContainer" placeholder="Konteyner raqamini kiriting" name="container_name" required>
+                    <label for="basicInputDate1" class="m-2">Kelgan sana</label>
+                    <input type="date" class="form-control m-2" id="basicInputDate1" name="come_date" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-primary" data-bs-dismiss="modal">
+                        <i class="bx bx-x d-block d-sm-none"></i>
+                        <span class="d-none d-sm-block">Orqaga</span>
+                    </button>
+                    <button type="submit" class="btn btn-primary ms-1"  >
+                        <i class="bx bx-check d-block d-sm-none"></i>
+                        <a  class="d-none d-sm-block text-white">Saqlash</a>
+                    </button>
+                </div>
+           </form>
+        </div>
+    </div>
+</div>
+</div>
+<!-- endmodals -->
+
+<!-- modal add size  -->
+
+
+
+
+
+<!-- Modal -->
+<div class="modal text-left" id="animation" tabindex="-1" role="dialog" aria-labelledby="myModalLabel6" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel6">Razmer kiriting</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="sizeForm">
+                    {% csrf_token %}
+                    <div class="row d-flex" >
+                        <h6 class="text-danger text-center msg-handle"></h6>
+                        <div class="col-md-3">
+                            <div class="form-group d-flex justify-content-end">
+                                <input type="number" step="any" class="form-control" name="product_size_x" required id="filter_size_x">
+                                <i class="bi bi-x text-dark fs-2" style="margin-top: -8px; "></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group d-flex justify-content-end">
+                                <input type="number" step="any" class="form-control" name="product_size_y" required id="filter_size_y">
+                                <i class="bi bi-x text-dark fs-2" style="margin-top: -8px; "></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group d-flex justify-content-start">
+                                <input type="number" step="any" class="form-control" name="product_size_z" required id="filter_size_z">
+                            </div>
+                        </div>
+                        <div class="col-md-2 ">
+                            <button class="btn badge bg-success p-2" type="submit" id="addSizeButton">Qo'shish +</button>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" name="product_size_title" required id="filter_size_text">
+                            
+                        </div>
+                        <div class="mt-3" id="filtered_sizes">
+                            
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive mt-3" style="overflow-y: scroll; max-height:300px;">
+                    <table class="table table-bordered mb-0" id="sizesTable" >
+                        <thead>
+                            <tr>
+                                <th>Razmerlar</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in all_product_size %}
+                            <tr id="tr_product_size-{{ s.id }}">
+                                <td class="text-bold-500">
+                                   <div class="sizeInfo-{{ s.id }}">
+                                    {{ s.product_size_x }} x {{ s.product_size_y }} x {{ s.product_size_z }} | {{s.product_size_title }}
+                                   </div>
+                                   <form id='updateSizeForm-{{ s.id }}''>
+                                       {% csrf_token %}
+                                    <div class="row editFormSize-{{ s.id }}" style="display: none;">
+
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" value="{{ s.product_size_x }}" name="update_size_x">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" value="{{ s.product_size_y }}" name="update_size_y">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" value="{{ s.product_size_z }}" name="update_size_z">
+                                        </div>
+                                        <div class="col-md-12 mt-1">
+                                            <input type="text" class="form-control" name="update_product_size_title" value="{{ s.product_size_title }}" >
+                                        </div>
+                                        <input type="text" value="{{ s.id }}" name="product_size_id" style="display: none;">
+                                    </div>
+                                    </form>
+
+                                </td>
+                                <td class="text-center m-2">
+                                    <a href="#" onclick="editSize('{{ s.id }}')" id="pensil-edit-{{ s.id }}"><i class="bi bi-pencil-square fs-5 text-warning edit-icon"></i></a>
+                                    <a href="#" onclick="deleteSize('{{ s.id }}')" id="trash-delete-{{ s.id }}"><i class="bi bi-trash-fill fs-5 text-danger edit-icon"></i></a>
+                                    <a href="#" onclick="checkSize('{{ s.id }}')" id="check-edit-{{ s.id }}"style='display:none;' ><i class="bi bi-check-square fs-5 text-success check-icon"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+                    <i class="bx bx-x d-block d-sm-none"></i>
+                    <span class="d-none d-sm-block">Orqaga</span>
+                </button>
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- endmodal add size  -->
+
+
+
+
+
+<script>
+    let $select_ = $('.searchable').selectize()
+
+
+    $(document).ready(function() {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    let csrftoken = getCookie('csrftoken');
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    })
+
+    
+
+    $(document).ready(function() {
+        // Handle form submission with AJAX
+        $('#addSizeButton').click(function(event) {
+            event.preventDefault();
+            let formData = $('#sizeForm').serialize();
+    
+            let isEmpty = false;
+    
+           
+            $('#sizeForm input').each(function() {
+                if ($(this).val().trim() === '') {
+                    isEmpty = true;
+                    return false; // Break out of the each loop
+                }
+            });
+            
+            if (isEmpty) {
+                $('.msg-handle').text("Razmer yozishni unutdingiz !")
+                return;
+            }
+    
+            $.ajax({
+                type: 'POST',
+                url: '{% url "main:add-size" %}', 
+                data: formData,
+                success: function(response) {
+
+                    if(response.status == 200){
+
+                        let newRow = `
+                            <tr id="tr_product_size-${ response.data.id }">
+                                <td class="text-bold-500">
+                                       <div class="sizeInfo-${ response.data.id }">
+                                        ${ response.data.size_x } x ${ response.data.size_y } x ${ response.data.size_z } | ${ response.data.product_size_title }
+                                       </div>
+                                       <form id=updateSizeForm-${ response.data.id }>
+                                        <div class="row editFormSize-${ response.data.id } style="display: none;">
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" value="${ response.data.size_x }" name="update_size_x">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" value="${ response.data.size_y }" name="update_size_y">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" value="${ response.data.size_z }" name="update_size_z">
+                                            </div>
+                                            <div class="col-md-12 mt-1">
+                                                <input type="text" class="form-control" name="update_product_size_title" value="${ response.data.product_size_title }" >
+                                            </div>
+                                            <input type="text" value=${ response.data.id } name="product_size_id" style="display: none;">
+    
+                                        </div>
+                                        </form>
+    
+                                    </td>
+                                    <td class="text-center m-2">
+                                        <a href="#" onclick="editSize('${ response.data.id }')" id="pensil-edit-${ response.data.id }"><i class="bi bi-pencil-square fs-5 text-warning edit-icon"></i></a>
+                                        <a href="#" onclick="deleteSize('${ response.data.id }')" id="trash-delete-${ response.data.id }"><i class="bi bi-trash-fill fs-5 text-danger edit-icon"></i></a>
+                                        <a href="#" onclick="checkSize('${ response.data.id }')" id="check-edit-${ response.data.id }" ><i class="bi bi-check-square fs-5 text-success check-icon"></i></a>
+                                    </td>
+                            </tr>
+                        `;
+                        $('table tbody').append(newRow);
+                        $(`.editFormSize-${ response.data.id }`).css({"display":"none"}) 
+                        $(`#check-edit-${ response.data.id }`).css({"display":"none"}) 
+                    }
+                    
+                    // Append the new row to the table body
+                    $('#sizeForm')[0].reset();
+                    $('.msg-handle').text('')
+
+
+                    
+                    messageToast(response.status, response.message)
+                },
+                error: function(error) {
+                    messageToast(status, error)
+                    $('#sizeForm')[0].reset();
+                    $('.msg-handle').text('')
+
+                    $(`.editFormSize-${ response.data.id }`).css({"display":"none"}) 
+                    $(`#check-edit-${ response.data.id }`).css({"display":"none"}) 
+                }
+            });
+        });
+    })
+    
+        function editSize(id) {
+            $(`#pensil-edit-${id}`).css({'display':'none'})
+            $(`.sizeInfo-${id}`).css({'display':'none'})
+            $(`.editFormSize-${id}`).css({'display':'flex'})
+            $(`#check-edit-${id}`).css({'display':'flex'})
+            $(`#trash-delete-${id}`).hide()
+            
+            
+        }
+
+        function checkSize(id){
+            $(`#check-edit-${id}`).css({'display':'none'})
+            $(`#pensil-edit-${id}`).css({'display':''})
+            $(`.sizeInfo-${id}`).css({'display':'flex'})
+            $(`.editFormSize-${id}`).css({'display':'none'})
+            $(`#trash-delete-${id}`).show()
+
+
+            let updateFormData = $(`#updateSizeForm-${id}`).serialize()
+      
+
+            $.ajax({
+                url: '{% url "main:update-size" %}',  // Replace with your actual URL
+                type: 'POST',
+                data: updateFormData,
+                success: function(response) {
+
+                    if(response.status == 200){
+                        $(`.sizeInfo-${response.data.id}`).html(`${response.data.product_size_x} x ${response.data.product_size_y} x ${response.data.product_size_z} | ${ response.data.product_size_title }` )
+                    }else{
+                        messageToast(response.status, response.message)
+
+                    }
+
+                
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error updating data: ' + error);
+
+                    messageToast(status, error)
+
+
+                }
+            });
+
+        }
+
+        function deleteSize(id){
+
+            deleteData = {
+                "id":id
+            }
+
+            $.ajax({
+                type: 'GET',
+                url: '{% url "main:delete-size" %}', 
+                data: deleteData,
+                success: function(response) {
+                    
+                    $(`#tr_product_size-${response.data.id}`).remove()
+                    console.log('working delete')
+
+                    messageToast(response.status, response.message)
+
+                
+                },
+                error: function(error) {
+                    messageToast(response.status,"Error adding size")
+
+                }
+            });
+
+        }
+
+
+        $('#searchContainerInput').on('keyup', function(e){
+            e.preventDefault();
+            let value = $(this).val()
+
+            $.ajax({
+                url:"{% url 'main:search-container' %}",
+                method:"GET",
+                data:{'value':value, "archive":false},
+                dataType:'json',
+                success:function(response){
+               
+                    AddData(response.data)
+
+                },
+                error:function(error){
+                    console.log(error)
+                }
+            });
+
+        });
+
+        let container_list = $('#containers_list')
+
+        function AddData(containers){
+
+            container_list.html('')
+            
+            if(containers.length > 0){
+                containers.forEach(c => {
+                    let new_list =  ` <div class="col-md-4 mt-2">
+                        <div class="card" >
+                            <div class="card-content" style="
+                            background-image: url(static/assets/static/images/extra-images/container-bg.png); 
+                            height:200px; 
+                            background-position: center;
+                            background-repeat: no-repeat;
+                            background-size: cover;" >
+                                <!-- <img class="img-fluid" src="../static/assets/static/images/extra-images/container-bg.png" alt="Card image cap"> -->
+                                <div class="col-md-8 col-lg-12 col-xl-12 p-4">
+                                    <h4 class="text-white font-bold">${c.container_name}</h4>
+                                    <h6 class="text-white font-semibold float-right" >${c.container_come_date}</h6>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer d-flex justify-content-between">
+                               
+                                
+                                <a href='/container-products-detail/${c.container_id}' ${c.container_id}  %}" class="text-white btn btn-info">Mahsulotlar</a>
+                                <a href='/container-trade-detail/${c.container_id}'  %}" class="text-white btn btn-success">Sotuv</a>
+                                <a href='/container-expence-detail/${c.container_id}' class="text-white btn btn-primary">Chiqimlar</a>
+                                
+                              
+                            </div>
+                        </div>
+                    </div>  `
+                    container_list.append(new_list)
+
+                })
+            }else{
+                containers.forEach(c => {
+                    let new_list =  ` <div class="col-md-4 mt-2">
+                        <div class="card" >
+                            <div class="card-content" style="
+                            background-image: url(static/assets/static/images/extra-images/container-bg.png); 
+                            height:200px; 
+                            background-position: center;
+                            background-repeat: no-repeat;
+                            background-size: cover;" >
+                                <!-- <img class="img-fluid" src="../static/assets/static/images/extra-images/container-bg.png" alt="Card image cap"> -->
+                                <div class="col-md-8 col-lg-12 col-xl-12 p-4">
+                                    <h4 class="text-white font-bold">${c.container_name}</h4>
+                                    <h6 class="text-white font-semibold float-right" >${c.come_date}</h6>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer d-flex justify-content-between">
+                               
+                                
+                                <a href='/container-products-detail/${c.container_id}' ${c.container_id}  %}" class="text-white btn btn-info">Mahsulotlar</a>
+                                <a href='/container-trade-detail/${c.container_id}'  %}" class="text-white btn btn-success">Sotuv</a>
+                                <a href='/container-expence-detail/${c.container_id}' class="text-white btn btn-primary">Chiqimlar</a>
+                                
+                              
+                            </div>
+                        </div>
+                    </div>  `
+                    container_list.append(new_list)
+
+                })
+            }
+
+           
+
+        }
+    
+   
+    </script>
+
+    <script>
+        let x = $('#filter_size_x')
+        let y = $('#filter_size_y')
+        let z = $('#filter_size_z')
+        let text = $('#filter_size_text')
+        let filtered = $('#filtered_sizes')
+        $(x).keyup(function(){
+            $.ajax({
+                url: '/filter_product_size_by_name/',
+                method: 'get',
+                data: {
+                    'x': x.val(),
+                    'y': y.val(),
+                    'z': z.val(),
+                    'text': text.val()
+                },
+                success: function(res){
+                    filtered.html(res)
+                }
+            })
+        })
+        $(y).keyup(function(){
+            $.ajax({
+                url: '/filter_product_size_by_name/',
+                method: 'get',
+                data: {
+                    'x': x.val(),
+                    'y': y.val(),
+                    'z': z.val(),
+                    'text': text.val()
+                },
+                success: function(res){
+                    filtered.html(res)
+                }
+            })
+        })
+        $(z).keyup(function(){
+            $.ajax({
+                url: '/filter_product_size_by_name/',
+                method: 'get',
+                data: {
+                    'x': x.val(),
+                    'y': y.val(),
+                    'z': z.val(),
+                    'text': text.val()
+                },
+                success: function(res){
+                    filtered.html(res)
+                }
+            })
+        })
+        $(text).keyup(function(){
+            $.ajax({
+                url: '/filter_product_size_by_name/',
+                method: 'get',
+                data: {
+                    'x': x.val(),
+                    'y': y.val(),
+                    'z': z.val(),
+                    'text': text.val()
+                },
+                success: function(res){
+                    filtered.html(res)
+                }
+            })
+        })
+    </script>
+
+{% endblock content %}
