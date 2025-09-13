@@ -48,3 +48,8 @@ Automated warehouse operations, reducing manual work by 50%
 Improved sales tracking and customer relationship management
 
 Easy to scale and customize for small businesses
+
+
+
+Demo login: admin
+password: 1
