@@ -16,7 +16,7 @@ A custom CRM system designed for managing wood warehouse operations, including i
 ## Installation  
 ```bash
 # Clone the repository
-git clone https://github.com/username/wood_base.git
+git clone https://github.com/abdulatipovO/wood_base.git
 
 # Enter the project folder
 cd wood_base
