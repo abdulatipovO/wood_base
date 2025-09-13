@@ -34,7 +34,7 @@ else:
     from wood_base.pro_settings import *
 
 
-CSRF_TRUSTED_ORIGINS = ['https://and-tayriku2.uz']
+CSRF_TRUSTED_ORIGINS = ['/']
 
 
 # Application definition
