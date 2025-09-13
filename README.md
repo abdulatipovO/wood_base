@@ -51,5 +51,5 @@ Easy to scale and customize for small businesses
 
 
 
-Demo login: admin
-password: 1
+## Demo login: admin
+## password: 1
